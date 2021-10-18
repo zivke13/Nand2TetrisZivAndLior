@@ -1,7 +1,7 @@
 bartsimp, lisasimp
 ===============================================================================
-Bart Simpson, ID 011111111, bart@mail.huji.ac.il
-Lisa Simpson, ID 022222222, lisa@mail.huji.ac.il
+Lior Sharon, ID 322263013, Lior.sharon@mail.huji.ac.il
+Ziv Kohn, ID 022222222, Ziv.kohn@mail.huji.ac.il
 ===============================================================================
 
                            Project 1 - Boolean Logic
@@ -30,11 +30,4 @@ Include other files required by your project, if there are any.
 
 Remarks
 -------
-* The README file must contain the following:
-- In the first line: login(s) of the author(s), 
-separated by commas and nothing else! 
-If you work alone, do not include a comma. 
-Logins should be identical to the names of your home folders and are 
-case-sensitive.
-- Name(s), email(s) and ID(s) of the project's author(s).
-- Any remarks you have about your submission.
+This Project include all the basic logic gates of the computer.
