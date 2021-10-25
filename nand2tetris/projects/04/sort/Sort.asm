@@ -1,19 +1,88 @@
-// This file is part of nand2tetris, as taught in The Hebrew University,
-// and was written by Aviv Yaish, and is published under the Creative 
-// Common Attribution-NonCommercial-ShareAlike 3.0 Unported License 
-// https://creativecommons.org/licenses/by-nc-sa/3.0/
 
-// An implementation of a sorting algorithm. 
-// An array is given in R14 and R15, where R14 contains the start address of the 
-// array, and R15 contains the length of the array. 
-// You are not allowed to change R14, R15.
-// The program should sort the array in-place and in descending order - 
-// the largest number at the head of the array.
-// You can assume that each array value x is between -16384 < x < 16384.
-// You can assume that the address in R14 is at least >= 2048, and that 
-// R14 + R15 <= 16383. 
-// No other assumptions can be made about the length of the array.
-// You can implement any sorting algorithm as long as its runtime complexity is 
-// at most C*O(N^2), like bubble-sort. 
+@R14
+D=M
+@i
+M=0
+    
+//for (i = 0; i < n-1; i++) 
+(FORI) 
 
-// Put your code here.
+@R15
+D=M
+D=D-1
+@i
+D=D-M
+@END
+D;JLE
+
+@j
+M=0
+/////for (j = 0; j < n-i-1; j++)
+(FORJ)
+@R15
+D=M
+D=D-1
+@j
+D=D-M
+@i
+D=D-M
+@ENDJ
+D;JLE
+
+/////////swap
+
+@R14
+D=M
+@j
+M=M+D
+A=M
+D=M
+A=A+1
+D=D-M
+@ESWAP
+D;JGE
+
+@j
+A=M
+D=M
+@swap
+M=D
+
+@j
+A=M
+A=A+1
+D=M
+
+@j
+A=M
+M=D
+
+@swap
+D=M
+@j
+A=M
+A=A+1
+M=D
+
+(ESWAP)
+@R14
+D=M
+@j
+M=M-D
+
+
+/////
+@j
+M=M+1
+@FORJ
+0;JMP
+(ENDJ)
+@i
+M=M+1
+@FORI
+0;JMP
+(END)
+@END
+0;JMP
+
+
