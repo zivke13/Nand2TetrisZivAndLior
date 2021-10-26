@@ -18,6 +18,7 @@
 // dest=M>>;jump | 1  | 0  | 0  |
 
 CHIP CpuMul {
+
     IN  inM[16],         // M value input  (M = contents of RAM[A])
         instruction[16], // Instruction for execution
         reset;           // Signals whether to re-start the current
@@ -27,7 +28,29 @@ CHIP CpuMul {
         writeM,          // Write into M? 
         addressM[15],    // Address in data memory (of M)
         pc[15];          // address of next instruction
-    
+	
     PARTS:
-    // Put you code here:
+	And(a=instruction[15],b=instruction[3],out=writeM);
+	Not(in=instruction[15],out=ninst);
+    Mux16(a=instruction,b=aluout,sel=instruction[15],out=ain);
+    ARegister(in=ain,load=aload,out=aout,out[0..14]=addressM);
+	Mux16(a=aout,b=inM,sel=instruction[12],out=aludata);
+	Mux(a=true,b=instruction[5],sel=instruction[15],out=aload);
+	Mux(a=true,b=instruction[13],sel=instruction[15],out=in7);
+    And(a=instruction[14],b=instruction[13],out=cpu);
+    Or(a=cpu,b=ninst,out=in8);
+    ExtendAlu(x=dout,y=aludata,instruction[8]=in8,instruction[7]=in7, instruction[6]=false,instruction[0..5]=instruction[6..11],out=aluout,out=outM,zr=zr,ng=ng);
+    And(a=instruction[4],b=instruction[15],out=dload);
+    DRegister(in=aluout,load=dload,out=dout);
+	And(a=instruction[2],b=instruction[15],out=a1);
+    And(a=instruction[1],b=instruction[15],out=a2);
+    And(a=instruction[0],b=instruction[15],out=a3);
+    And(a=a1,b=ng,out=ngjmp);
+    And(a=a2,b=zr,out=zrjmp);
+    Or(a=zr,b=ng,out=ozn);
+    Not(in=ozn,out=nozn);
+	And(a=nozn,b=a3,out=ajmp);
+    Or(a=ngjmp,b=zrjmp,out=oznjmp);
+    Or(a=oznjmp,b=ajmp,out=ojmp);
+    PC(in=aout,load=ojmp,inc=true,reset=reset,out[0..14]=pc);
 }
