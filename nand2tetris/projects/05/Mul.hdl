@@ -1,0 +1,55 @@
+CHIP Mul{
+    IN a[16], b[16];
+    OUT out[16];
+
+    PARTS:
+	Mux16(a[0..14]=false, a[15]=b[15], b=a, sel=b[0], out=m1);
+	ShiftLeft(in=a, out=s1);
+	Mux16(a[0..14]=false, a[15]=b[15], b=s1, sel=b[1], out=m2);
+	ShiftLeft(in=s1, out=s2);
+	Mux16(a[0..14]=false, a[15]=b[15], b=s2, sel=b[2], out=m3);
+	ShiftLeft(in=s2, out=s3);
+	Mux16(a[0..14]=false, a[15]=b[15], b=s3, sel=b[3], out=m4);
+	ShiftLeft(in=s3, out=s4);
+	Mux16(a[0..14]=false, a[15]=b[15], b=s4, sel=b[4], out=m5);
+	ShiftLeft(in=s4, out=s5);
+	Mux16(a[0..14]=false, a[15]=b[15], b=s5, sel=b[5], out=m6);
+	ShiftLeft(in=s5, out=s6);
+	Mux16(a[0..14]=false, a[15]=b[15], b=s6, sel=b[6], out=m7);
+	ShiftLeft(in=s6, out=s7);
+	Mux16(a[0..14]=false, a[15]=b[15], b=s7, sel=b[7], out=m8);
+	ShiftLeft(in=s7, out=s8);
+	Mux16(a[0..14]=false, a[15]=b[15], b=s8, sel=b[8], out=m9);
+	ShiftLeft(in=s8, out=s9);
+	Mux16(a[0..14]=false, a[15]=b[15], b=s9, sel=b[9], out=m10);
+	ShiftLeft(in=s9, out=s10);
+	Mux16(a[0..14]=false, a[15]=b[15], b=s10, sel=b[10], out=m11);
+	ShiftLeft(in=s10, out=s11);
+	Mux16(a[0..14]=false, a[15]=b[15], b=s11, sel=b[11], out=m12);
+	ShiftLeft(in=s11, out=s12);
+	Mux16(a[0..14]=false, a[15]=b[15], b=s12, sel=b[12], out=m13);
+	ShiftLeft(in=s12, out=s13);
+	Mux16(a[0..14]=false, a[15]=b[15], b=s13, sel=b[13], out=m14);
+	ShiftLeft(in=s13, out=s14);
+	Mux16(a[0..14]=false, a[15]=b[15], b=s14, sel=b[14], out=m15);
+	Add16(a=m1, b=m2, out=add1);
+	Add16(a=add1, b=m3, out=add2);
+	Add16(a=add2, b=m4, out=add3);
+	Add16(a=add3, b=m5, out=add4);
+	Add16(a=add4, b=m6, out=add5);
+	Add16(a=add5, b=m7, out=add6);
+	Add16(a=add6, b=m8, out=add7);
+	Add16(a=add7, b=m9, out=add8);
+	Add16(a=add8, b=m10, out=add9);
+	Add16(a=add9, b=m11, out=add10);
+	Add16(a=add10, b=m12, out=add11);
+	Add16(a=add11, b=m13, out=add12);
+	Add16(a=add12, b=m14, out=add13);
+	Add16(a=add13, b=m15, out[0..7]=orA, out[8..15]=orB, out=out1);
+	Xor(a=a[15], b=b[15], out=neg);
+	Or8Way(in=orA, out=isnotzero1);
+	Or8Way(in=orB, in[7]=false, out=isnotzero2);
+	Or(a=isnotzero1, b=isnotzero2, out=isNotZero);
+	Mux(a=false, b=neg, sel=isNotZero ,out=isNeg);
+	Mux16(a=false, b=out1, b[15]=isNeg, sel=true, out=out);
+}
