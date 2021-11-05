@@ -29,7 +29,7 @@ class Parser:
         self.input_lines = input_file.read().splitlines()
         self.remove_spaces()
         self.remove_backSlesh()
-        self.new_input_lines = []
+        self.input_lines = [line for line in self.input_lines if line]
         self.i = 0
         self.current = self.input_lines[0]
 
@@ -54,7 +54,7 @@ class Parser:
         self.i = 0
         self.current = self.input_lines[0]
 
-    def remove_lines(self) -> None:
+    def remove_line(self) -> None:
         del self.input_lines[self.i]
         self.current = self.input_lines[self.i]
 
@@ -64,19 +64,16 @@ class Parser:
         Returns:
             bool: True if there are more commands, False otherwise.
         """
-        if self.i < len(self.input_lines):
+        if self.i < len(self.input_lines) - 1:
             return True
-        else:
-            return False
-        pass
+        return False
 
     def advance(self) -> None:
         """Reads the next command from the input and makes it the current command.
         Should be called only if has_more_commands() is true.
         """
-        self.current = self.input_lines[self.i]
         self.i += 1
-        pass
+        self.current = self.input_lines[self.i]
 
     def command_type(self) -> str:
         """
@@ -110,7 +107,7 @@ class Parser:
         # Your code goes here!
         pass
 
-    def dest(self) -> str:
+    def jump(self) -> str:
         """
         Returns:
             str: the dest mnemonic in the current C-command. Should be called 
@@ -133,7 +130,7 @@ class Parser:
         # Your code goes here!
         pass
 
-    def jump(self) -> str:
+    def dest(self) -> str:
         """
         Returns:
             str: the jump mnemonic in the current C-command. Should be called 

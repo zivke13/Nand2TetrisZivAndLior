@@ -19,7 +19,12 @@ class SymbolTable:
         """
         self.symbol_dict = {
             "SCREEN": 16384,
-            "KBD": 24576
+            "KBD": 24576,
+            "SP": 0,
+            "LCL": 1,
+            "ARG": 2,
+            "THIS": 3,
+            "THAT": 4
         }
         for i in range(16):
             self.symbol_dict[f'R{i}'] = i

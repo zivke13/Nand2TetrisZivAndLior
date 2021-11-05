@@ -55,7 +55,7 @@ def assemble_file(
             if not symbol_table.contains(symbol):
                 symbol_table.add_entry(symbol, variable_count)
                 variable_count += 1
-                parser.advance()
+        parser.advance()
     parser.restart()
 
     while parser.has_more_commands():
@@ -69,8 +69,19 @@ def assemble_file(
             dest = code.dest(parser.dest())
             jump = code.jump(parser.jump())
             output_lines.append(f'111{comp}{dest}{jump}')
+        parser.advance()
+    if parser.command_type() == A_COMMAND:
+        symbol = parser.symbol()
+        if not symbol.isdigit():
+            symbol = symbol_table.get_address(symbol)
+        output_lines.append(int_to_16_bit_binary(int(symbol)))
+    elif parser.command_type() == C_COMMAND:
+        comp = code.comp(parser.comp())
+        dest = code.dest(parser.dest())
+        jump = code.jump(parser.jump())
+        output_lines.append(f'111{comp}{dest}{jump}')
 
-    output_file.writelines(output_lines)
+    output_file.write('\n'.join(output_lines))
 
 
 if "__main__" == __name__:

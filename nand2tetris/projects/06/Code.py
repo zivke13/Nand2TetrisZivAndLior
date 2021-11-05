@@ -40,7 +40,7 @@ COMP_MNEMONICS = {
     "-M": "1110011",
     "M+1": "1110111",
     "M-1": "1110010",
-    "D+M": "0000010",
+    "D+M": "1000010",
     "D-M": "1010011",
     "M-D": "1000111",
     "D&M": "1000000",
@@ -70,7 +70,7 @@ class Code:
         Returns:
             str: 3-bit long binary code of the given mnemonic.
         """
-        return DEST_MNENOMICS[mnemonic]
+        return DEST_MNENOMICS.get(mnemonic, '000')
 
     @staticmethod
     def comp(mnemonic: str) -> str:
@@ -81,7 +81,7 @@ class Code:
         Returns:
             str: 7-bit long binary code of the given mnemonic.
         """
-        return COMP_MNEMONICS.get(mnemonic, "000")
+        return COMP_MNEMONICS[mnemonic]
 
     @staticmethod
     def jump(mnemonic: str) -> str:
