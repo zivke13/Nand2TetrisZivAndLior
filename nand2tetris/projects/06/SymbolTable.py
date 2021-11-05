@@ -17,8 +17,12 @@ class SymbolTable:
         and their pre-allocated RAM addresses, according to section 6.2.3 of the
         book.
         """
-        # Your code goes here!
-        pass
+        self.symbol_dict = {
+            "SCREEN": 16384,
+            "KBD": 24576
+        }
+        for i in range(16):
+            self.symbol_dict[f'R{i}'] = i
 
     def add_entry(self, symbol: str, address: int) -> None:
         """Adds the pair (symbol, address) to the table.
@@ -27,8 +31,7 @@ class SymbolTable:
             symbol (str): the symbol to add.
             address (int): the address corresponding to the symbol.
         """
-        # Your code goes here!
-        pass
+        self.symbol_dict[symbol] = address
 
     def contains(self, symbol: str) -> bool:
         """Does the symbol table contain the given symbol?
@@ -39,8 +42,7 @@ class SymbolTable:
         Returns:
             bool: True if the symbol is contained, False otherwise.
         """
-        # Your code goes here!
-        pass
+        return symbol in self.symbol_dict
 
     def get_address(self, symbol: str) -> int:
         """Returns the address associated with the symbol.
@@ -51,5 +53,4 @@ class SymbolTable:
         Returns:
             int: the address associated with the symbol.
         """
-        # Your code goes here!
-        pass
+        return self.symbol_dict[symbol]
