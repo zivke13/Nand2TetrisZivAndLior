@@ -81,7 +81,8 @@ class CodeWriter:
 
     @staticmethod
     def _translate_pop_dynamic(segment: str, index: int) -> str:
-        pass
+        return '\n'.join([f"@{index}", "D=A", "@SP", "A=M", "M=D", "A=A-1", "D=M", "A=A+1", "A=M", "M=D",
+                          "@SP", "M=m-1"]) + '\n'
 
     def _translate_push_static(self, index: int) -> str:
         return '\n'.join([f"@{self.filename}.{index}", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1"]) + '\n'
