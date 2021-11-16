@@ -9,6 +9,13 @@ import typing
 
 ADD_COMMAND = "add"
 SUB_COMMAND = "sub"
+NEG_COMMAND = "neg"
+EQ_COMMAND = "eq"
+GT_COMMAND = "gt"
+LT_COMMAND = "lt"
+AND_COMMAND = "and"
+OR_COMMAND = "or"
+NOT_COMMAND = "not"
 SHR_COMMAND = "shiftright"
 SHL_COMMAND = "shiftleft"
 
@@ -51,6 +58,7 @@ class CodeWriter:
         """
         self.output = output_stream
         self.filename = ""
+        self.custom_label_count = 0
 
     def set_file_name(self, filename: str) -> None:
         """Informs the code writer that the translation of a new VM file is 
@@ -69,6 +77,46 @@ class CodeWriter:
     @staticmethod
     def _translate_sub() -> str:
         return '\n'.join(["@SP", "A=M-1", "D=-M", "A=A-1", "M=D+M", "@SP", "M=M-1"]) + '\n'
+
+    @staticmethod
+    def _translate_neg() -> str:
+        return '\n'.join(["@SP", "A=M-1", "M=-M"]) + '\n'
+
+    def _translate_eq(self) -> str:
+        self.custom_label_count += 1
+        return '\n'.join(["@SP", "A=M-1", "D=M", "A=A-1", "M=D-M",  # calc the sub of the last two numbers
+                          f"@false.gt.{self.custom_label_count}", "D;eq",  # jump to store false if needed
+                          "SP", "A=M-1", "M=-1", f"@true.gt.{self.custom_label_count}", "0;JMP",  # store true
+                          f"(false.gt.{self.custom_label_count})", "@SP", "A=M-1", "M=0",  # store false
+                          f"(true.gt.{self.custom_label_count})", "@SP", "M=M-1"]) + '\n'  # end and change SP
+
+    def _translate_gt(self) -> str:
+        self.custom_label_count += 1
+        return '\n'.join(["@SP", "A=M-1", "D=M", "A=A-1", "M=D-M",  # calc the sub of the last two numbers
+                          f"@false.gt.{self.custom_label_count}", "D;gt",  # jump to store false if needed
+                          "SP", "A=M-1", "M=-1", f"@true.gt.{self.custom_label_count}", "0;JMP",  # store true
+                          f"(false.gt.{self.custom_label_count})", "@SP", "A=M-1", "M=0",  # store false
+                          f"(true.gt.{self.custom_label_count})", "@SP", "M=M-1"]) + '\n'  # end and change SP
+
+    def _translate_lt(self) -> str:
+        self.custom_label_count += 1
+        return '\n'.join(["@SP", "A=M-1", "D=M", "A=A-1", "M=D-M",  # calc the sub of the last two numbers
+                          f"@false.gt.{self.custom_label_count}", "D;lt",  # jump to store false if needed
+                          "SP", "A=M-1", "M=-1", f"@true.gt.{self.custom_label_count}", "0;JMP",  # store true
+                          f"(false.gt.{self.custom_label_count})", "@SP", "A=M-1", "M=0",  # store false
+                          f"(true.gt.{self.custom_label_count})", "@SP", "M=M-1"]) + '\n'  # end and change SP
+
+    @staticmethod
+    def _translate_and() -> str:
+        return '\n'.join(["@SP", "A=M-1", "D=M", "A=A-1", "M=D&M", "@SP", "M=M-1"]) + '\n'
+
+    @staticmethod
+    def _translate_or() -> str:
+        return '\n'.join(["@SP", "A=M-1", "D=M", "A=A-1", "M=D|M", "@SP", "M=M-1"]) + '\n'
+
+    @staticmethod
+    def _translate_not() -> str:
+        return '\n'.join(["@SP", "A=M-1", "M=!M"]) + '\n'
 
     @staticmethod
     def _translate_shr() -> str:
@@ -137,6 +185,20 @@ class CodeWriter:
             self.output.write(self._translate_shr())
         elif command == SHL_COMMAND:
             self.output.write(self._translate_shl())
+        elif command == NEG_COMMAND:
+            self.output.write(self._translate_neg())
+        elif command == EQ_COMMAND:
+            self.output.write(self._translate_eq())
+        elif command == GT_COMMAND:
+            self.output.write(self._translate_gt())
+        elif command == LT_COMMAND:
+            self.output.write(self._translate_lt())
+        elif command == AND_COMMAND:
+            self.output.write(self._translate_and())
+        elif command == OR_COMMAND:
+            self.output.write(self._translate_or())
+        elif command == NOT_COMMAND:
+            self.output.write(self._translate_not())
 
     def write_push_pop(self, command: str, segment: str, index: int) -> None:
         """Writes the assembly code that is the translation of the given 
