@@ -85,7 +85,7 @@ class CodeWriter:
     def _translate_eq(self) -> str:
         self.custom_label_count += 1
         return '\n'.join(["@SP", "A=M-1", "D=M", "A=A-1", "M=D-M",  # calc the sub of the last two numbers
-                          f"@false.gt.{self.custom_label_count}", "D;eq",  # jump to store false if needed
+                          f"@false.gt.{self.custom_label_count}", "D;JEQ",  # jump to store false if needed
                           "SP", "A=M-1", "M=-1", f"@true.gt.{self.custom_label_count}", "0;JMP",  # store true
                           f"(false.gt.{self.custom_label_count})", "@SP", "A=M-1", "M=0",  # store false
                           f"(true.gt.{self.custom_label_count})", "@SP", "M=M-1"]) + '\n'  # end and change SP
@@ -93,7 +93,7 @@ class CodeWriter:
     def _translate_gt(self) -> str:
         self.custom_label_count += 1
         return '\n'.join(["@SP", "A=M-1", "D=M", "A=A-1", "M=D-M",  # calc the sub of the last two numbers
-                          f"@false.gt.{self.custom_label_count}", "D;gt",  # jump to store false if needed
+                          f"@false.gt.{self.custom_label_count}", "D;JGT",  # jump to store false if needed
                           "SP", "A=M-1", "M=-1", f"@true.gt.{self.custom_label_count}", "0;JMP",  # store true
                           f"(false.gt.{self.custom_label_count})", "@SP", "A=M-1", "M=0",  # store false
                           f"(true.gt.{self.custom_label_count})", "@SP", "M=M-1"]) + '\n'  # end and change SP
@@ -101,7 +101,7 @@ class CodeWriter:
     def _translate_lt(self) -> str:
         self.custom_label_count += 1
         return '\n'.join(["@SP", "A=M-1", "D=M", "A=A-1", "M=D-M",  # calc the sub of the last two numbers
-                          f"@false.gt.{self.custom_label_count}", "D;lt",  # jump to store false if needed
+                          f"@false.gt.{self.custom_label_count}", "D;JLT",  # jump to store false if needed
                           "SP", "A=M-1", "M=-1", f"@true.gt.{self.custom_label_count}", "0;JMP",  # store true
                           f"(false.gt.{self.custom_label_count})", "@SP", "A=M-1", "M=0",  # store false
                           f"(true.gt.{self.custom_label_count})", "@SP", "M=M-1"]) + '\n'  # end and change SP
@@ -118,12 +118,17 @@ class CodeWriter:
     def _translate_not() -> str:
         return '\n'.join(["@SP", "A=M-1", "M=!M"]) + '\n'
 
-    @staticmethod
-    def _translate_shr() -> str:
-        pass
-        # # find the left most bit and store it in @shl
-        # '\n'.join([f"@{2 ** 15}", "D=A", "@SP", "A=M", "D=D&M"])
-        # return '\n'.join([f"{2 ** 15}", "D=A", "@SP", "A=M-1", "MD=D&M", "M=D+M"]) + '\n'
+    def _translate_shr(self) -> str:
+        self.custom_label_count += 1
+        return '\n'.join([f"@shr.counter.{self.custom_label_count}", "M=0",  # initialize 0 in the counter
+                          f"(shr.loop.{self.custom_label_count})",  # loop's start
+                          "@SP", "A=M-1", "D=M",  # store stack's top value in D
+                          "D=D-1", f"@shr.end.{self.custom_label_count}", "D;JLE",  # jump to the loop's end if D<2
+                          "@SP", "A=M-1", "M=M-1", "M=M-1",  # decrease the stack's top value by 2
+                          f"@shr.counter.{self.custom_label_count}", "M=M+1",  # increase the counter by 1
+                          f"@shr.loop.{self.custom_label_count}", "0;JMP",  # jump to the loop's start
+                          f"(shr.end.{self.custom_label_count})", f"@shr.counter.{self.custom_label_count}",
+                          "D=M", "@SP", "A=M-1", "M=D"]) + '\n'  # store the counter in the stack
 
     @staticmethod
     def _translate_shl() -> str:
