@@ -10,7 +10,7 @@ C_PUSH = "C_PUSH"
 C_POP = "C_POP"
 C_LABEL = "C_LABEL"
 C_GOTO = "C_GOTO"
-C_IF = "C_IF"
+C_IF_GOTO = "C_IF_GOTO"
 C_FUNCTION = "C_FUNCTION"
 C_RETURN = "C_RETURN"
 C_CALL = "C_CALL"
@@ -103,8 +103,8 @@ class Parser:
             return C_POP
         if self.current_split[0] == "label":
             return C_LABEL
-        if self.current_split[0] == "if":
-            return C_IF
+        if self.current_split[0] == "if-goto":
+            return C_IF_GOTO
         if self.current_split[0] == "goto":
             return C_GOTO
         if self.current_split[0] == "function":

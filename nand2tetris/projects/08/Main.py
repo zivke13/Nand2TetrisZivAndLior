@@ -15,6 +15,9 @@ C_PUSH = "C_PUSH"
 C_POP = "C_POP"
 C_FUNCTION = "C_FUNCTION"
 C_CALL = "C_CALL"
+LABEL_COMMAND = "C_LABEL"
+GOTO_COMMAND = "C_GOTO"
+IF_GOTO_COMMAND = "C_IF_GOTO"
 
 
 def translate_file(
@@ -39,6 +42,9 @@ def translate_file(
             segment = parser.arg1()
             index = parser.arg2()
             code_writer.write_push_pop(parser.command_type(), segment, index)
+        elif parser.command_type() in [LABEL_COMMAND, GOTO_COMMAND, IF_GOTO_COMMAND]:
+            label_name = parser.arg1()
+            code_writer.write_branching_command(parser.command_type(), label_name)
         parser.advance()
 
     if parser.command_type() == C_ARITHMETIC:
@@ -48,6 +54,9 @@ def translate_file(
         segment = parser.arg1()
         index = parser.arg2()
         code_writer.write_push_pop(parser.command_type(), segment, index)
+    elif parser.command_type() in [LABEL_COMMAND, GOTO_COMMAND, IF_GOTO_COMMAND]:
+        label_name = parser.arg1()
+        code_writer.write_branching_command(parser.command_type(), label_name)
 
     code_writer.close()
 

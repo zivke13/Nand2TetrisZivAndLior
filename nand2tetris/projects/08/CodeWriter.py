@@ -22,6 +22,9 @@ SHL_COMMAND = "shiftleft"
 
 PUSH_COMMAND = "C_PUSH"
 POP_COMMAND = "C_POP"
+LABEL_COMMAND = "C_LABEL"
+GOTO_COMMAND = "C_GOTO"
+IF_GOTO_COMMAND = "C_IF_GOTO"
 
 CONSTANT_SEGMENT = "constant"
 
@@ -183,6 +186,18 @@ class CodeWriter:
     def _translate_pop_pointer(index: int) -> str:
         return '\n'.join(["@SP", "A=M-1", "D=M", f"@{POINTER_VALUE[index]}", "M=D", "@SP", "M=M-1"]) + '\n'
 
+    @staticmethod
+    def _translate_label(label_name: str) -> str:
+        return f"(label.{label_name})\n"
+
+    @staticmethod
+    def _translate_if_goto(label_name: str) -> str:
+        return '\n'.join(["@SP", "AM=M-1", "D=M", f"@label.{label_name}", "D;JNE"]) + '\n'
+
+    @staticmethod
+    def _translate_goto(label_name: str) -> str:
+        return '\n'.join([f"@label.{label_name}", "0;JMP"]) + '\n'
+
     def write_arithmetic(self, command: str) -> None:
         """Writes the assembly code that is the translation of the given 
         arithmetic command.
@@ -253,6 +268,15 @@ class CodeWriter:
                 self.output.write(self._translate_push_pointer(index))
             if command == POP_COMMAND:
                 self.output.write(self._translate_pop_pointer(index))
+
+    def write_branching_command(self, command: str, label_name: str):
+        if command == LABEL_COMMAND:
+            self.output.write(self._translate_label(label_name))
+        elif command == IF_GOTO_COMMAND:
+            self.output.write(self._translate_if_goto(label_name))
+        elif command == GOTO_COMMAND:
+            self.output.write(self._translate_goto(label_name))
+
 #project 8
     
 
