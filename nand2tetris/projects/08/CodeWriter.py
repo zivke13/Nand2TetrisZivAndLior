@@ -65,6 +65,7 @@ class CodeWriter:
         self.output = output_stream
         self.filename = ""
         self.custom_label_count = 0
+        self.return_num = 0
 
     def set_file_name(self, filename: str) -> None:
         """Informs the code writer that the translation of a new VM file is 
@@ -205,8 +206,19 @@ class CodeWriter:
     def _translate_function(func_name: str, num_args: int) -> str:
         pass
 
-    @staticmethod
-    def _translate_call(func_name: str, num_args: int) -> str:
+    def _translate_call(self, func_name: str, num_args: int) -> str:
+        self.return_num += 1
+        return '\n'.join([f"@return.{self.return_num}", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1", #
+                          "@LCL", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1", #saved LCL
+                          "@ARG", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",#saves ARG
+                          "@THIS", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",#saves THIS
+                          "@THAT", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",#saves THAT
+                          "@SP", "D=M", "@5", "D=D-M", f"@{num_args}", "D=D-M", #new arg
+                          "@SP", "D=M", "@LCL", "M=D", #LCL = SP
+                          f"@func.{func_name}", "0;JMP", #goto function name
+                          f"(return.{self.return_num})"])
+
+
         pass
 
     @staticmethod
