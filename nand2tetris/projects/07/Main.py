@@ -10,6 +10,12 @@ import typing
 from Parser import Parser
 from CodeWriter import CodeWriter
 
+C_ARITHMETIC = "C_ARITHMETIC"
+C_PUSH = "C_PUSH"
+C_POP = "C_POP"
+C_FUNCTION = "C_FUNCTION"
+C_CALL = "C_CALL"
+
 
 def translate_file(
         input_file: typing.TextIO, output_file: typing.TextIO) -> None:
@@ -22,7 +28,20 @@ def translate_file(
     # Your code goes here!
     # Note: you can get the input file's name using:
     # input_filename, input_extension = os.path.splitext(os.path.basename(input_file.name))
-    pass
+    parser = Parser(input_file)
+    code_writer = CodeWriter(output_file)
+
+    while parser.has_more_commands():
+        if parser.command_type() == C_ARITHMETIC:
+            command = parser.arg1()
+            code_writer.write_arithmetic(command)
+        elif parser.command_type() in [C_PUSH, C_POP]:
+            segment = parser.arg1()
+            index = parser.arg2()
+            code_writer.write_push_pop(parser.command_type(), segment, index)
+        parser.advance()
+
+    code_writer.close()
 
 
 if "__main__" == __name__:
