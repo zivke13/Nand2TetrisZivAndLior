@@ -25,6 +25,9 @@ POP_COMMAND = "C_POP"
 LABEL_COMMAND = "C_LABEL"
 GOTO_COMMAND = "C_GOTO"
 IF_GOTO_COMMAND = "C_IF_GOTO"
+FUNCTION_COMMAND = "C_FUNCTION"
+RETURN_COMMAND = "C_RETURN"
+CALL_COMMAND = "C_CALL"
 
 CONSTANT_SEGMENT = "constant"
 
@@ -198,6 +201,18 @@ class CodeWriter:
     def _translate_goto(label_name: str) -> str:
         return '\n'.join([f"@label.{label_name}", "0;JMP"]) + '\n'
 
+    @staticmethod
+    def _translate_function(func_name: str, num_args: int) -> str:
+        pass
+
+    @staticmethod
+    def _translate_call(func_name: str, num_args: int) -> str:
+        pass
+
+    @staticmethod
+    def _translate_return() -> str:
+        pass
+
     def write_arithmetic(self, command: str) -> None:
         """Writes the assembly code that is the translation of the given 
         arithmetic command.
@@ -276,6 +291,15 @@ class CodeWriter:
             self.output.write(self._translate_if_goto(label_name))
         elif command == GOTO_COMMAND:
             self.output.write(self._translate_goto(label_name))
+
+    def write_function_command(self, command: str, func_name: str, num_args: int):
+        if command == FUNCTION_COMMAND:
+            self.output.write(self._translate_function(func_name, num_args))
+        elif command == CALL_COMMAND:
+            self.output.write(self._translate_call(func_name, num_args))
+
+    def write_return_command(self):
+        self.output.write(self._translate_return())
 
 #project 8
     

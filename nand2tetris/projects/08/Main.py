@@ -18,6 +18,9 @@ C_CALL = "C_CALL"
 LABEL_COMMAND = "C_LABEL"
 GOTO_COMMAND = "C_GOTO"
 IF_GOTO_COMMAND = "C_IF_GOTO"
+FUNCTION_COMMAND = "C_FUNCTION"
+RETURN_COMMAND = "C_RETURN"
+CALL_COMMAND = "C_CALL"
 
 
 def translate_file(
@@ -57,6 +60,12 @@ def translate_file(
     elif parser.command_type() in [LABEL_COMMAND, GOTO_COMMAND, IF_GOTO_COMMAND]:
         label_name = parser.arg1()
         code_writer.write_branching_command(parser.command_type(), label_name)
+    elif parser.command_type() in [FUNCTION_COMMAND, CALL_COMMAND]:
+        func = parser.arg1()
+        num_args = parser.arg2()
+        code_writer.write_function_command(parser.command_type(), func, num_args)
+    elif parser.command_type() == RETURN_COMMAND:
+        code_writer.write_return_command()
 
     code_writer.close()
 
