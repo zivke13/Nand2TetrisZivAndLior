@@ -77,6 +77,9 @@ class CodeWriter:
         self.filename = filename
         self.output.write(f'// {filename}\n')
 
+    def bootstrap(self):
+        self.output.write('\n'.join(["@256", "D=A", "@SP", "M=D"]) + '\n')
+
     @staticmethod
     def _translate_add() -> str:
         return '\n'.join(["@SP", "A=M-1", "D=M", "A=A-1", "M=D+M", "@SP", "M=M-1"]) + '\n'
@@ -202,9 +205,8 @@ class CodeWriter:
     def _translate_goto(label_name: str) -> str:
         return '\n'.join([f"@label.{label_name}", "0;JMP"]) + '\n'
 
-    @staticmethod
-    def _translate_function(func_name: str, num_args: int) -> str:
-        pass
+    def _translate_function(self, func_name: str, num_args: int) -> str:
+        return f"(func.{func_name})\n" + num_args * self._translate_push_const(0)
 
     def _translate_call(self, func_name: str, num_args: int) -> str:
         self.return_num += 1
@@ -221,9 +223,20 @@ class CodeWriter:
 
         pass
 
-    @staticmethod
-    def _translate_return() -> str:
-        pass
+    def _translate_return(self) -> str:
+        return '\n'.join([f"@LCL", "D=M", "@endFrame", "M=D",  # store LCL in endFrame
+                          "@5", "D=D-A", "@retAddr", "M=D",  # store LCL-5 in retAddr
+                          self._translate_pop_dynamic(ARG_SEGMENT, 0),  # store return value in ARG
+                          f"@{SEGMENT_TO_NAME[ARG_SEGMENT]}", "D=A+1", "@SP", "M=D",  # SP = ARG + 1
+                          f"@{SEGMENT_TO_NAME[LOCAL_SEGMENT]}", "AM=M-1", "D=M",
+                          f"@{SEGMENT_TO_NAME[THAT_SEGMENT]}", "M=D",  # restore THAT
+                          f"@{SEGMENT_TO_NAME[LOCAL_SEGMENT]}", "AM=M-1", "D=M",
+                          f"@{SEGMENT_TO_NAME[THIS_SEGMENT]}", "M=D",  # restore THIS
+                          f"@{SEGMENT_TO_NAME[LOCAL_SEGMENT]}", "AM=M-1", "D=M",
+                          f"@{SEGMENT_TO_NAME[ARG_SEGMENT]}", "M=D",  # restore ARG
+                          f"@{SEGMENT_TO_NAME[LOCAL_SEGMENT]}", "AM=M-1", "D=M",
+                          f"@{SEGMENT_TO_NAME[LOCAL_SEGMENT]}", "M=D",  # restore LCL
+                          "@retAddr", "0;JMP"]) + '\n'  # jump back
 
     def write_arithmetic(self, command: str) -> None:
         """Writes the assembly code that is the translation of the given 
@@ -297,6 +310,7 @@ class CodeWriter:
                 self.output.write(self._translate_pop_pointer(index))
 
     def write_branching_command(self, command: str, label_name: str):
+        self.output.write(f"// {command} {label_name}\n")
         if command == LABEL_COMMAND:
             self.output.write(self._translate_label(label_name))
         elif command == IF_GOTO_COMMAND:
@@ -305,12 +319,14 @@ class CodeWriter:
             self.output.write(self._translate_goto(label_name))
 
     def write_function_command(self, command: str, func_name: str, num_args: int):
+        self.output.write(f"// {command} {func_name} {num_args}\n")
         if command == FUNCTION_COMMAND:
             self.output.write(self._translate_function(func_name, num_args))
         elif command == CALL_COMMAND:
             self.output.write(self._translate_call(func_name, num_args))
 
     def write_return_command(self):
+        self.output.write("// return\n")
         self.output.write(self._translate_return())
 
 #project 8

@@ -48,6 +48,12 @@ def translate_file(
         elif parser.command_type() in [LABEL_COMMAND, GOTO_COMMAND, IF_GOTO_COMMAND]:
             label_name = parser.arg1()
             code_writer.write_branching_command(parser.command_type(), label_name)
+        elif parser.command_type() in [FUNCTION_COMMAND, CALL_COMMAND]:
+            func = parser.arg1()
+            num_args = parser.arg2()
+            code_writer.write_function_command(parser.command_type(), func, num_args)
+        elif parser.command_type() == RETURN_COMMAND:
+            code_writer.write_return_command()
         parser.advance()
 
     if parser.command_type() == C_ARITHMETIC:
