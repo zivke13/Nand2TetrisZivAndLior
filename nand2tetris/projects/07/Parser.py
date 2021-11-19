@@ -14,7 +14,7 @@ C_IF = "C_IF"
 C_FUNCTION = "C_FUNCTION"
 C_RETURN = "C_RETURN"
 C_CALL = "C_CALL"
-arithmetic = ["add", "sub", "neg", "eq", "gt", "lt", "and", "or", "not"]
+arithmetic = ["add", "sub", "neg", "eq", "gt", "lt", "and", "or", "not", "shiftright", "shiftleft"]
 
 class Parser:
     """

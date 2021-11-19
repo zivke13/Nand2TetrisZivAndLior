@@ -120,7 +120,11 @@ class CodeWriter:
 
     def _translate_shr(self) -> str:
         self.custom_label_count += 1
-        return '\n'.join([f"@shr.counter.{self.custom_label_count}", "M=0",  # initialize 0 in the counter
+        return '\n'.join(["@SP", "A=M-1", "D=M", f"@shr.isneg.{self.custom_label_count}", "M=D",  # store M
+                          f"@start.pos.{self.custom_label_count}", "D;JGE",  # skip if positive
+                          "@SP", "A=M-1", "M=-M",  # neg M
+                          f"(start.pos.{self.custom_label_count})",  # start normal flow
+                          f"@shr.counter.{self.custom_label_count}", "M=0",  # initialize 0 in the counter
                           f"(shr.loop.{self.custom_label_count})",  # loop's start
                           "@SP", "A=M-1", "D=M",  # store stack's top value in D
                           "D=D-1", f"@shr.end.{self.custom_label_count}", "D;JLE",  # jump to the loop's end if D<2
@@ -128,7 +132,11 @@ class CodeWriter:
                           f"@shr.counter.{self.custom_label_count}", "M=M+1",  # increase the counter by 1
                           f"@shr.loop.{self.custom_label_count}", "0;JMP",  # jump to the loop's start
                           f"(shr.end.{self.custom_label_count})", f"@shr.counter.{self.custom_label_count}",
-                          "D=M", "@SP", "A=M-1", "M=D"]) + '\n'  # store the counter in the stack
+                          "D=M", "@SP", "A=M-1", "M=D",  # store the counter in the stack
+                          f"@shr.isneg.{self.custom_label_count}", "D=M",  # store the initial value in D
+                          f"@end.pos.{self.custom_label_count}", "D;JGE",  # jump to end if positive
+                          "@SP", "A=M-1", "M=-M",  # neg SP
+                          f"(end.pos.{self.custom_label_count})"]) + '\n'  # end
 
     @staticmethod
     def _translate_shl() -> str:
