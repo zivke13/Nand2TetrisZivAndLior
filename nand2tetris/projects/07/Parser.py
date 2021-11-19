@@ -44,7 +44,7 @@ class Parser:
         :return:
         """
         for i in range(0,len(self.input_lines),1):
-            self.input_lines[i] = self.input_lines[i].replace(" ", "")
+            self.input_lines[i] = self.input_lines[i].strip()
 
     def remove_backslash(self):
         for i in range(0,len(self.input_lines),1):

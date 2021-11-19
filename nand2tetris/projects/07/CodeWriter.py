@@ -20,8 +20,8 @@ SHR_COMMAND = "shiftright"
 SHL_COMMAND = "shiftleft"
 
 
-PUSH_COMMAND = "push"
-POP_COMMAND = "pop"
+PUSH_COMMAND = "C_PUSH"
+POP_COMMAND = "C_POP"
 
 CONSTANT_SEGMENT = "constant"
 
@@ -84,26 +84,26 @@ class CodeWriter:
 
     def _translate_eq(self) -> str:
         self.custom_label_count += 1
-        return '\n'.join(["@SP", "A=M-1", "D=M", "A=A-1", "M=D-M",  # calc the sub of the last two numbers
-                          f"@false.gt.{self.custom_label_count}", "D;JEQ",  # jump to store false if needed
-                          "SP", "A=M-1", "M=-1", f"@true.gt.{self.custom_label_count}", "0;JMP",  # store true
-                          f"(false.gt.{self.custom_label_count})", "@SP", "A=M-1", "M=0",  # store false
-                          f"(true.gt.{self.custom_label_count})", "@SP", "M=M-1"]) + '\n'  # end and change SP
+        return '\n'.join(["@SP", "A=M-1", "D=M", "A=A-1", "D=D-M",  # calc the sub of the last two numbers
+                          f"@true.gt.{self.custom_label_count}", "D;JEQ",  # jump to store false if needed
+                          "@SP", "A=M-1", "A=A-1", "M=0", f"@false.gt.{self.custom_label_count}", "0;JMP",  # store false
+                          f"(true.gt.{self.custom_label_count})", "@SP", "A=M-1", "A=A-1", "M=-1",  # store true
+                          f"(false.gt.{self.custom_label_count})", "@SP", "M=M-1"]) + '\n'  # end and change SP
 
     def _translate_gt(self) -> str:
         self.custom_label_count += 1
-        return '\n'.join(["@SP", "A=M-1", "D=M", "A=A-1", "M=D-M",  # calc the sub of the last two numbers
-                          f"@false.gt.{self.custom_label_count}", "D;JGT",  # jump to store false if needed
-                          "SP", "A=M-1", "M=-1", f"@true.gt.{self.custom_label_count}", "0;JMP",  # store true
-                          f"(false.gt.{self.custom_label_count})", "@SP", "A=M-1", "M=0",  # store false
+        return '\n'.join(["@SP", "A=M-1", "D=M", "A=A-1", "D=D-M",  # calc the sub of the last two numbers
+                          f"@false.gt.{self.custom_label_count}", "D;JGE",  # jump to store false if needed
+                          "@SP", "A=M-1", "A=A-1", "M=-1", f"@true.gt.{self.custom_label_count}", "0;JMP",  # store true
+                          f"(false.gt.{self.custom_label_count})", "@SP", "A=M-1", "A=A-1", "M=0",  # store false
                           f"(true.gt.{self.custom_label_count})", "@SP", "M=M-1"]) + '\n'  # end and change SP
 
     def _translate_lt(self) -> str:
         self.custom_label_count += 1
-        return '\n'.join(["@SP", "A=M-1", "D=M", "A=A-1", "M=D-M",  # calc the sub of the last two numbers
-                          f"@false.gt.{self.custom_label_count}", "D;JLT",  # jump to store false if needed
-                          "SP", "A=M-1", "M=-1", f"@true.gt.{self.custom_label_count}", "0;JMP",  # store true
-                          f"(false.gt.{self.custom_label_count})", "@SP", "A=M-1", "M=0",  # store false
+        return '\n'.join(["@SP", "A=M-1", "D=M", "A=A-1", "D=D-M",  # calc the sub of the last two numbers
+                          f"@false.gt.{self.custom_label_count}", "D;JLE",  # jump to store false if needed
+                          "@SP", "A=M-1", "A=A-1", "M=-1", f"@true.gt.{self.custom_label_count}", "0;JMP",  # store true
+                          f"(false.gt.{self.custom_label_count})", "@SP", "A=M-1", "A=A-1", "M=0",  # store false
                           f"(true.gt.{self.custom_label_count})", "@SP", "M=M-1"]) + '\n'  # end and change SP
 
     @staticmethod
@@ -149,7 +149,7 @@ class CodeWriter:
 
     @staticmethod
     def _translate_pop_dynamic(segment: str, index: int) -> str:
-        return '\n'.join([f"@{index}", "D=A", f"@{SEGMENT_TO_NAME[segment]}", "D=D+A",  # store the right index in D
+        return '\n'.join([f"@{SEGMENT_TO_NAME[segment]}", "D=M", f"@{index}", "D=D+A",  # store the right index in D
                           "@SP", "A=M", "M=D", "A=A-1", "D=M", "A=A+1", "A=M", "M=D",  # store the value from the stack
                           "@SP", "M=M-1"]) + '\n'  # decrease the stack pointer
 
@@ -161,11 +161,11 @@ class CodeWriter:
 
     @staticmethod
     def _translate_push_temp(index: int) -> str:
-        return '\n'.join([f"@R{4 + index}", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1"]) + '\n'
+        return '\n'.join([f"@R{5 + index}", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1"]) + '\n'
 
     @staticmethod
     def _translate_pop_temp(index: int) -> str:
-        return '\n'.join(["@SP", "A=M-1", "D=M", f"@R{4 + index}", "M=D", "@SP", "M=M-1"]) + '\n'
+        return '\n'.join(["@SP", "A=M-1", "D=M", f"@R{5 + index}", "M=D", "@SP", "M=M-1"]) + '\n'
 
     @staticmethod
     def _translate_push_pointer(index: int) -> str:
@@ -182,6 +182,7 @@ class CodeWriter:
         Args:
             command (str): an arithmetic command.
         """
+        self.output.write(f"// {command}\n")
         if command == ADD_COMMAND:
             self.output.write(self._translate_add())
         elif command == SUB_COMMAND:
@@ -214,6 +215,7 @@ class CodeWriter:
             segment (str): the memory segment to operate on.
             index (int): the index in the memory segment.
         """
+        self.output.write(f"// {command} {segment} {index}\n")
         if segment == CONSTANT_SEGMENT:
             if command == PUSH_COMMAND:
                 self.output.write(self._translate_push_const(index))

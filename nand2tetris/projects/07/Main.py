@@ -41,6 +41,14 @@ def translate_file(
             code_writer.write_push_pop(parser.command_type(), segment, index)
         parser.advance()
 
+    if parser.command_type() == C_ARITHMETIC:
+        command = parser.arg1()
+        code_writer.write_arithmetic(command)
+    elif parser.command_type() in [C_PUSH, C_POP]:
+        segment = parser.arg1()
+        index = parser.arg2()
+        code_writer.write_push_pop(parser.command_type(), segment, index)
+
     code_writer.close()
 
 
