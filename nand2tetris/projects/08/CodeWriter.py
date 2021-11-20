@@ -227,16 +227,12 @@ class CodeWriter:
         return '\n'.join([f"@LCL", "D=M", "@endFrame", "M=D",  # store LCL in endFrame
                           "@5", "D=D-A", "@retAddr", "M=D",  # store LCL-5 in retAddr
                           self._translate_pop_dynamic(ARG_SEGMENT, 0),  # store return value in ARG
-                          f"@{SEGMENT_TO_NAME[ARG_SEGMENT]}", "D=A+1", "@SP", "M=D",  # SP = ARG + 1
-                          f"@{SEGMENT_TO_NAME[LOCAL_SEGMENT]}", "AM=M-1", "D=M",
-                          f"@{SEGMENT_TO_NAME[THAT_SEGMENT]}", "M=D",  # restore THAT
-                          f"@{SEGMENT_TO_NAME[LOCAL_SEGMENT]}", "AM=M-1", "D=M",
-                          f"@{SEGMENT_TO_NAME[THIS_SEGMENT]}", "M=D",  # restore THIS
-                          f"@{SEGMENT_TO_NAME[LOCAL_SEGMENT]}", "AM=M-1", "D=M",
-                          f"@{SEGMENT_TO_NAME[ARG_SEGMENT]}", "M=D",  # restore ARG
-                          f"@{SEGMENT_TO_NAME[LOCAL_SEGMENT]}", "AM=M-1", "D=M",
-                          f"@{SEGMENT_TO_NAME[LOCAL_SEGMENT]}", "M=D",  # restore LCL
-                          "@retAddr", "0;JMP"]) + '\n'  # jump back
+                          f"@{SEGMENT_TO_NAME[ARG_SEGMENT]}", "D=M+1", "@SP", "M=D",  # SP = ARG + 1
+                          f"@LCL", "AM=M-1", "D=M", f"@THAT", "M=D",  # restore THAT
+                          f"@LCL", "AM=M-1", "D=M", f"@THIS", "M=D",  # restore THIS
+                          f"@LCL", "AM=M-1", "D=M", f"@ARG", "M=D",  # restore ARG
+                          f"@LCL", "AM=M-1", "D=M", f"@LCL", "M=D",  # restore LCL
+                          "@retAddr", "A=M", "0;JMP"]) + '\n'  # jump back
 
     def write_arithmetic(self, command: str) -> None:
         """Writes the assembly code that is the translation of the given 
