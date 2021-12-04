@@ -210,14 +210,14 @@ class CodeWriter:
 
     def _translate_call(self, func_name: str, num_args: int) -> str:
         self.return_num += 1
-        return '\n'.join([f"@return.{self.return_num}", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1", #
-                          "@LCL", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1", #saved LCL
-                          "@ARG", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",#saves ARG
-                          "@THIS", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",#saves THIS
-                          "@THAT", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",#saves THAT
-                          "@SP", "D=M", "@5", "D=D-M", f"@{num_args}", "D=D-M", #new arg
-                          "@SP", "D=M", "@LCL", "M=D", #LCL = SP
-                          f"@func.{func_name}", "0;JMP", #goto function name
+        return '\n'.join([f"@return.{self.return_num}", "D=A", "@SP", "A=M", "M=D", "@SP", "M=M+1", #
+                          "@LCL", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",  # saved LCL
+                          "@ARG", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",  # saves ARG
+                          "@THIS", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",  # saves THIS
+                          "@THAT", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",  # saves THAT
+                          "@SP", "D=M", "@5", "D=D-M", f"@{num_args}", "D=D-M", "@ARG", "M=D",  # new arg
+                          "@SP", "D=M", "@LCL", "M=D",  # LCL = SP
+                          f"@func.{func_name}", "0;JMP",  # goto function name
                           f"(return.{self.return_num})"])
 
 
@@ -225,7 +225,7 @@ class CodeWriter:
 
     def _translate_return(self) -> str:
         return '\n'.join([f"@LCL", "D=M", "@endFrame", "M=D",  # store LCL in endFrame
-                          "@5", "D=D-A", "@retAddr", "M=D",  # store LCL-5 in retAddr
+                          "@5", "D=D-A", "A=D", "D=M", "@retAddr", "M=D",  # store LCL-5 in retAddr
                           self._translate_pop_dynamic(ARG_SEGMENT, 0),  # store return value in ARG
                           f"@{SEGMENT_TO_NAME[ARG_SEGMENT]}", "D=M+1", "@SP", "M=D",  # SP = ARG + 1
                           f"@LCL", "AM=M-1", "D=M", f"@THAT", "M=D",  # restore THAT
