@@ -36,6 +36,7 @@ def translate_file(
     # input_filename, input_extension = os.path.splitext(os.path.basename(input_file.name))
     parser = Parser(input_file)
     code_writer = CodeWriter(output_file)
+    code_writer.set_file_name(os.path.splitext(os.path.split(input_file.name)[1])[0])
 
     while parser.has_more_commands():
         if parser.command_type() == C_ARITHMETIC:
@@ -90,26 +91,17 @@ if "__main__" == __name__:
         output_path, extension = os.path.splitext(argument_path)
     output_path += ".asm"
     with open(output_path, 'w') as output_file:
-        for input_path in files_to_translate:
-            split_file = input_path.split('\\')
-            if split_file[-1] == "Sys.vm":
-                print("aaaaa")
-                output_file.write("@256" + "\n" + "D=A" + "\n" + "@SP" + "\n" + "M=D" + "\n")
-                call_func = '\n'.join(["@return.0", "D=A", "@SP", "A=M", "M=D", "@SP", "M=M+1",  #
-                                       "@LCL", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",  # saved LCL
-                                       "@ARG", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",  # saves ARG
-                                       "@THIS", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",  # saves THIS
-                                       "@THAT", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",  # saves THAT
-                                       "@SP", "D=M", "@5", "D=D-A", "@0", "D=D-A", "@ARG", "M=D",  # new arg
-                                       "@SP", "D=M", "@LCL", "M=D",  # LCL = SP
-                                       f"@func.Sys.main", "0;JMP",  # goto function name
-                                       "(return.0)", ""])
-                output_file.write(call_func)
-                code_writer = CodeWriter(output_file)
-                func = "Sys.init"
-                num_args = 0
-                code_writer.write_function_command(C_CALL, func, num_args)
-                continue
+        output_file.write("@256" + "\n" + "D=A" + "\n" + "@SP" + "\n" + "M=D" + "\n")
+        call_func = '\n'.join(["@return.0", "D=A", "@SP", "A=M", "M=D", "@SP", "M=M+1",  #
+                               "@LCL", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",  # saved LCL
+                               "@ARG", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",  # saves ARG
+                               "@THIS", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",  # saves THIS
+                               "@THAT", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",  # saves THAT
+                               "@SP", "D=M", "@5", "D=D-A", "@0", "D=D-A", "@ARG", "M=D",  # new arg
+                               "@SP", "D=M", "@LCL", "M=D",  # LCL = SP
+                               f"@func.Sys.init", "0;JMP",  # goto function name
+                               "(return.0)", ""])
+        output_file.write(call_func)
         for input_path in files_to_translate:
             filename, extension = os.path.splitext(input_path)
             if extension.lower() != ".vm":

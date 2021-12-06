@@ -55,6 +55,7 @@ POINTER_VALUE = {
 
 class CodeWriter:
     """Translates VM commands into Hack assembly code."""
+    return_num = 0
 
     def __init__(self, output_stream: typing.TextIO) -> None:
         """Initializes the CodeWriter.
@@ -65,7 +66,6 @@ class CodeWriter:
         self.output = output_stream
         self.filename = ""
         self.custom_label_count = 0
-        self.return_num = 0
 
     def set_file_name(self, filename: str) -> None:
         """Informs the code writer that the translation of a new VM file is 
@@ -209,8 +209,8 @@ class CodeWriter:
         return f"(func.{func_name})\n" + num_args * self._translate_push_const(0)
 
     def _translate_call(self, func_name: str, num_args: int) -> str:
-        self.return_num += 1
-        return '\n'.join([f"@return.{self.return_num}", "D=A", "@SP", "A=M", "M=D", "@SP", "M=M+1", #
+        CodeWriter.return_num += 1
+        return '\n'.join([f"@return.{CodeWriter.return_num}", "D=A", "@SP", "A=M", "M=D", "@SP", "M=M+1", #
                           "@LCL", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",  # saved LCL
                           "@ARG", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",  # saves ARG
                           "@THIS", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",  # saves THIS
@@ -218,7 +218,7 @@ class CodeWriter:
                           "@SP", "D=M", "@5", "D=D-A", f"@{num_args}", "D=D-A", "@ARG", "M=D",  # new arg
                           "@SP", "D=M", "@LCL", "M=D",  # LCL = SP
                           f"@func.{func_name}", "0;JMP",  # goto function name
-                          f"(return.{self.return_num})", ""])
+                          f"(return.{CodeWriter.return_num})", ""])
 
 
         pass
@@ -227,7 +227,7 @@ class CodeWriter:
         return '\n'.join([f"@LCL", "D=M", "@endFrame", "M=D",  # store LCL in endFrame
                           "@5", "D=D-A", "A=D", "D=M", "@retAddr", "M=D",  # store LCL-5 in retAddr
                           self._translate_pop_dynamic(ARG_SEGMENT, 0),  # store return value in ARG
-                          f"@{SEGMENT_TO_NAME[ARG_SEGMENT]}", "D=M+1", "@SP", "M=D",  # SP = ARG + 1
+                          f"@ARG", "D=M+1", "@SP", "M=D",  # SP = ARG + 1
                           f"@LCL", "AM=M-1", "D=M", f"@THAT", "M=D",  # restore THAT
                           f"@LCL", "AM=M-1", "D=M", f"@THIS", "M=D",  # restore THIS
                           f"@LCL", "AM=M-1", "D=M", f"@ARG", "M=D",  # restore ARG

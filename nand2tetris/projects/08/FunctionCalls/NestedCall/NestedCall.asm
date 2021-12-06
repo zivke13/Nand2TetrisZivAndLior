@@ -1,3 +1,58 @@
+@256
+D=A
+@SP
+M=D
+@return.0
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@LCL
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@ARG
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@THIS
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@THAT
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@SP
+D=M
+@5
+D=D-A
+@0
+D=D-A
+@ARG
+M=D
+@SP
+D=M
+@LCL
+M=D
+@func.Sys.init
+0;JMP
+(return.0)
+// Sys
 // C_FUNCTION Sys.init 0
 (func.Sys.init)
 // C_PUSH constant 4000
@@ -71,9 +126,9 @@ M=M+1
 @SP
 D=M
 @5
-D=D-M
+D=D-A
 @0
-D=D-M
+D=D-A
 @ARG
 M=D
 @SP
@@ -82,7 +137,8 @@ D=M
 M=D
 @func.Sys.main
 0;JMP
-(return.1)// C_POP temp 1
+(return.1)
+// C_POP temp 1
 @SP
 A=M-1
 D=M
@@ -280,9 +336,9 @@ M=M+1
 @SP
 D=M
 @5
-D=D-M
+D=D-A
 @1
-D=D-M
+D=D-A
 @ARG
 M=D
 @SP
@@ -291,7 +347,8 @@ D=M
 M=D
 @func.Sys.add12
 0;JMP
-(return.2)// C_POP temp 0
+(return.2)
+// C_POP temp 0
 @SP
 A=M-1
 D=M
@@ -438,8 +495,7 @@ D=M
 M=D
 @retAddr
 A=M
-0;JMP
-// C_FUNCTION Sys.add12 0
+0;JMP// C_FUNCTION Sys.add12 0
 (func.Sys.add12)
 // C_PUSH constant 4002
 @4002
