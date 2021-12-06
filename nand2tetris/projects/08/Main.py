@@ -73,8 +73,6 @@ def translate_file(
     elif parser.command_type() == RETURN_COMMAND:
         code_writer.write_return_command()
 
-    code_writer.close()
-
 
 if "__main__" == __name__:
     # Parses the input path and calls translate_file on each input file
@@ -92,6 +90,26 @@ if "__main__" == __name__:
         output_path, extension = os.path.splitext(argument_path)
     output_path += ".asm"
     with open(output_path, 'w') as output_file:
+        for input_path in files_to_translate:
+            split_file = input_path.split('\\')
+            if split_file[-1] == "Sys.vm":
+                print("aaaaa")
+                output_file.write("@256" + "\n" + "D=A" + "\n" + "@SP" + "\n" + "M=D" + "\n")
+                call_func = '\n'.join(["@return.0", "D=A", "@SP", "A=M", "M=D", "@SP", "M=M+1",  #
+                                       "@LCL", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",  # saved LCL
+                                       "@ARG", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",  # saves ARG
+                                       "@THIS", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",  # saves THIS
+                                       "@THAT", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",  # saves THAT
+                                       "@SP", "D=M", "@5", "D=D-A", "@0", "D=D-A", "@ARG", "M=D",  # new arg
+                                       "@SP", "D=M", "@LCL", "M=D",  # LCL = SP
+                                       f"@func.Sys.main", "0;JMP",  # goto function name
+                                       "(return.0)", ""])
+                output_file.write(call_func)
+                code_writer = CodeWriter(output_file)
+                func = "Sys.init"
+                num_args = 0
+                code_writer.write_function_command(C_CALL, func, num_args)
+                continue
         for input_path in files_to_translate:
             filename, extension = os.path.splitext(input_path)
             if extension.lower() != ".vm":

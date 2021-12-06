@@ -215,10 +215,10 @@ class CodeWriter:
                           "@ARG", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",  # saves ARG
                           "@THIS", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",  # saves THIS
                           "@THAT", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1",  # saves THAT
-                          "@SP", "D=M", "@5", "D=D-M", f"@{num_args}", "D=D-M", "@ARG", "M=D",  # new arg
+                          "@SP", "D=M", "@5", "D=D-A", f"@{num_args}", "D=D-A", "@ARG", "M=D",  # new arg
                           "@SP", "D=M", "@LCL", "M=D",  # LCL = SP
                           f"@func.{func_name}", "0;JMP",  # goto function name
-                          f"(return.{self.return_num})"])
+                          f"(return.{self.return_num})", ""])
 
 
         pass
@@ -232,7 +232,7 @@ class CodeWriter:
                           f"@LCL", "AM=M-1", "D=M", f"@THIS", "M=D",  # restore THIS
                           f"@LCL", "AM=M-1", "D=M", f"@ARG", "M=D",  # restore ARG
                           f"@LCL", "AM=M-1", "D=M", f"@LCL", "M=D",  # restore LCL
-                          "@retAddr", "A=M", "0;JMP"]) + '\n'  # jump back
+                          "@retAddr", "A=M", "0;JMP"])   # jump back
 
     def write_arithmetic(self, command: str) -> None:
         """Writes the assembly code that is the translation of the given 
