@@ -22,22 +22,25 @@ class CompilationEngine:
         """
         # Your code goes here!
         pass
-
+    #1
     def compile_class(self) -> None:
         """Compiles a complete class."""
         # Your code goes here!
         pass
 
+    # 2
     def compile_class_var_dec(self) -> None:
         """Compiles a static declaration or a field declaration."""
         # Your code goes here!
         pass
 
+    # 3
     def compile_subroutine(self) -> None:
         """Compiles a complete method, function, or constructor."""
         # Your code goes here!
         pass
 
+    # 4
     def compile_parameter_list(self) -> None:
         """Compiles a (possibly empty) parameter list, not including the 
         enclosing "()".
@@ -45,11 +48,13 @@ class CompilationEngine:
         # Your code goes here!
         pass
 
+    # 5
     def compile_var_dec(self) -> None:
         """Compiles a var declaration."""
         # Your code goes here!
         pass
 
+    # 6
     def compile_statements(self) -> None:
         """Compiles a sequence of statements, not including the enclosing 
         "{}".
@@ -57,36 +62,43 @@ class CompilationEngine:
         # Your code goes here!
         pass
 
+    # 7
     def compile_do(self) -> None:
         """Compiles a do statement."""
         # Your code goes here!
         pass
 
+    # 8
     def compile_let(self) -> None:
         """Compiles a let statement."""
         # Your code goes here!
         pass
 
+    # 9
     def compile_while(self) -> None:
         """Compiles a while statement."""
         # Your code goes here!
         pass
 
+    # 10
     def compile_return(self) -> None:
         """Compiles a return statement."""
         # Your code goes here!
         pass
 
+    # 11
     def compile_if(self) -> None:
         """Compiles a if statement, possibly with a trailing else clause."""
         # Your code goes here!
         pass
 
+    # 12
     def compile_expression(self) -> None:
         """Compiles an expression."""
         # Your code goes here!
         pass
 
+    # 13
     def compile_term(self) -> None:
         """Compiles a term. 
         This routine is faced with a slight difficulty when
@@ -100,6 +112,7 @@ class CompilationEngine:
         # Your code goes here!
         pass
 
+    # 14
     def compile_expression_list(self) -> None:
         """Compiles a (possibly empty) comma-separated list of expressions."""
         # Your code goes here!
