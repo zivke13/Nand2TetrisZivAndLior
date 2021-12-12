@@ -5,6 +5,16 @@ and as allowed by the Creative Common Attribution-NonCommercial-ShareAlike 3.0
 Unported License (https://creativecommons.org/licenses/by-nc-sa/3.0/).
 """
 import typing
+from contextlib import contextmanager
+
+from xml.etree.ElementTree import Element, tostring
+from xml.dom import minidom
+
+from JackTokenizer import JackTokenizer
+
+
+CLASS_VAR_DEC_TYPES = ["field", "static"]
+SUBROUTINE_DEC_TYPES = ["constructor", "function", "method"]
 
 
 class CompilationEngine:
@@ -12,21 +22,35 @@ class CompilationEngine:
     output stream.
     """
 
-    def __init__(self, input_stream: typing.TextIO,
-                output_stream: typing.TextIO) -> None:
+    def __init__(self, input_stream: typing.TextIO, output_stream: typing.TextIO, tokenizer: JackTokenizer) -> None:
         """
         Creates a new compilation engine with the given input and output. The
         next routine called must be compileClass()
         :param input_stream: The input stream.
         :param output_stream: The output stream.
         """
-        # Your code goes here!
-        pass
+        self.input_stream = input_stream
+        self.output_stream = output_stream
+        self.tokenizer = tokenizer
+        self.root = Element('class')
+        self.current_element = self.root
+        self.tag_count = 0
+
     #1
     def compile_class(self) -> None:
         """Compiles a complete class."""
-        # Your code goes here!
-        pass
+        for _ in range(3):
+            self._write_token()
+
+        while self.tokenizer.string_val() in CLASS_VAR_DEC_TYPES:
+            with self._write_tag("classVarDec"):
+                self.compile_class_var_dec()
+
+        while self.tokenizer.string_val() in SUBROUTINE_DEC_TYPES:
+            with self._write_tag("subroutineDec"):
+                self.compile_subroutine()
+
+        self._write_token()
 
     # 2
     def compile_class_var_dec(self) -> None:
@@ -38,6 +62,7 @@ class CompilationEngine:
     def compile_subroutine(self) -> None:
         """Compiles a complete method, function, or constructor."""
         # Your code goes here!
+        self._write_token()
         pass
 
     # 4
@@ -117,3 +142,25 @@ class CompilationEngine:
         """Compiles a (possibly empty) comma-separated list of expressions."""
         # Your code goes here!
         pass
+
+    def write_to_file(self) -> None:
+        xml = minidom.parseString(tostring(self.root)).toprettyxml(" " * 2)
+        pretty_xml = '\n'.join(xml.splitlines()[1:])
+        self.output_stream.write(pretty_xml)
+
+    def _write_token(self) -> None:
+        self.tag_count += 1
+        new_element = Element(self.tokenizer.token_type())
+        new_element.text = self.tokenizer.symbol()
+        self.current_element.insert(self.tag_count, new_element)
+        self.tokenizer.advance()
+
+    @contextmanager
+    def _write_tag(self, tag_type: str) -> None:
+        self.tag_count += 1
+        current_element = self.current_element
+        new_tag = Element(tag_type)
+        self.current_element.insert(self.tag_count, new_tag)
+        self.current_element = new_tag
+        yield
+        self.current_element = current_element
