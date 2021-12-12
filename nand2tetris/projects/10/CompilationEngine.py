@@ -55,8 +55,9 @@ class CompilationEngine:
     # 2
     def compile_class_var_dec(self) -> None:
         """Compiles a static declaration or a field declaration."""
-        # Your code goes here!
-        pass
+        while self.tokenizer.symbol() != ';':
+            self._write_token()
+        self._write_token()
 
     # 3
     def compile_subroutine(self) -> None:
