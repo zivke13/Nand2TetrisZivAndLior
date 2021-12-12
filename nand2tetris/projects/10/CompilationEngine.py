@@ -15,6 +15,9 @@ from JackTokenizer import JackTokenizer
 
 CLASS_VAR_DEC_TYPES = ["field", "static"]
 SUBROUTINE_DEC_TYPES = ["constructor", "function", "method"]
+VAR_DEC_TYPE = "var"
+IDENTIFIER_TYPE = "IDENTIFIER"
+ELSE_TYPE = "else"
 
 
 class CompilationEngine:
@@ -36,7 +39,14 @@ class CompilationEngine:
         self.current_element = self.root
         self.tag_count = 0
 
-    #1
+        self.statement_type_to_function = {
+            "do": self.compile_do,
+            "let": self.compile_let,
+            "while": self.compile_while,
+            "return": self.compile_return,
+            "if": self.compile_if
+        }
+
     def compile_class(self) -> None:
         """Compiles a complete class."""
         for _ in range(3):
@@ -52,14 +62,12 @@ class CompilationEngine:
 
         self._write_token()
 
-    # 2
     def compile_class_var_dec(self) -> None:
         """Compiles a static declaration or a field declaration."""
         while self.tokenizer.symbol() != ';':
             self._write_token()
         self._write_token()
 
-    # 3
     def compile_subroutine(self) -> None:
         """Compiles a complete method, function, or constructor."""
         for i in range(4):
@@ -69,7 +77,16 @@ class CompilationEngine:
             self.compile_parameter_list()
         self._write_token()
 
-    # 4
+        with self._write_tag("subroutineBody"):
+            self._write_token()
+            while self.tokenizer.symbol() == VAR_DEC_TYPE:
+                with self._write_tag("varDec"):
+                    self.compile_var_dec()
+
+            with self._write_tag("statements"):
+                self.compile_statements()
+            self._write_token()
+
     def compile_parameter_list(self) -> None:
         """Compiles a (possibly empty) parameter list, not including the 
         enclosing "()".
@@ -77,49 +94,91 @@ class CompilationEngine:
         while self.tokenizer.symbol() != ")":
             self._write_token()
 
-    # 5
     def compile_var_dec(self) -> None:
         """Compiles a var declaration."""
-        # Your code goes here!
-        pass
+        while self.tokenizer.symbol() != ";":
+            self._write_token()
+        self._write_token()
 
-    # 6
     def compile_statements(self) -> None:
         """Compiles a sequence of statements, not including the enclosing 
         "{}".
         """
-        # Your code goes here!
-        pass
+        while self.tokenizer.symbol() in self.statement_type_to_function:
+            with self._write_tag(f"{self.tokenizer.symbol()}Statement"):
+                self.statement_type_to_function[self.tokenizer.symbol()]()
 
-    # 7
     def compile_do(self) -> None:
         """Compiles a do statement."""
-        # Your code goes here!
-        pass
+        for i in range(5):
+            self._write_token()
 
-    # 8
+        with self._write_tag("expressionList"):
+            self.compile_expression_list()
+
+        for i in range(2):
+            self._write_token()
+
     def compile_let(self) -> None:
         """Compiles a let statement."""
-        # Your code goes here!
-        pass
+        self._write_token()
+        if self.tokenizer.token_type() == IDENTIFIER_TYPE:
+            self._write_token()
+        self._write_token()
 
-    # 9
+        with self._write_tag("expression"):
+            self.compile_expression()
+
+        self._write_token()
+
     def compile_while(self) -> None:
         """Compiles a while statement."""
-        # Your code goes here!
-        pass
+        for i in range(2):
+            self._write_token()
 
-    # 10
+        with self._write_tag("expression"):
+            self.compile_expression()
+
+        for i in range(2):
+            self._write_token()
+
+        with self._write_tag("statements"):
+            self.compile_statements()
+
+        self._write_token()
+
     def compile_return(self) -> None:
         """Compiles a return statement."""
-        # Your code goes here!
-        pass
+        self._write_token()
 
-    # 11
+        if self.tokenizer.symbol() != ';':
+            with self._write_tag("expression"):
+                self.compile_expression()
+        self._write_token()
+
     def compile_if(self) -> None:
         """Compiles a if statement, possibly with a trailing else clause."""
-        # Your code goes here!
-        pass
+        for i in range(2):
+            self._write_token()
+
+        with self._write_tag("expression"):
+            self.compile_expression()
+
+        for i in range(2):
+            self._write_token()
+
+        with self._write_tag("statements"):
+            self.compile_statements()
+
+        self._write_token()
+
+        if self.tokenizer.symbol() == ELSE_TYPE:
+            for i in range(2):
+                self._write_token()
+
+            with self._write_tag("statements"):
+                self.compile_statements()
+            self._write_token()
 
     # 12
     def compile_expression(self) -> None:
@@ -157,7 +216,9 @@ class CompilationEngine:
         new_element = Element(self.tokenizer.token_type())
         new_element.text = self.tokenizer.symbol()
         self.current_element.insert(self.tag_count, new_element)
-        self.tokenizer.advance()
+
+        if self.tokenizer.has_more_tokens():
+            self.tokenizer.advance()
 
     @contextmanager
     def _write_tag(self, tag_type: str) -> None:
