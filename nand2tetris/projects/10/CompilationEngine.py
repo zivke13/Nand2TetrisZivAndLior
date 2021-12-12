@@ -62,17 +62,20 @@ class CompilationEngine:
     # 3
     def compile_subroutine(self) -> None:
         """Compiles a complete method, function, or constructor."""
-        # Your code goes here!
+        for i in range(4):
+            self._write_token()
+
+        with self._write_tag("parameterList"):
+            self.compile_parameter_list()
         self._write_token()
-        pass
 
     # 4
     def compile_parameter_list(self) -> None:
         """Compiles a (possibly empty) parameter list, not including the 
         enclosing "()".
         """
-        # Your code goes here!
-        pass
+        while self.tokenizer.symbol() != ")":
+            self._write_token()
 
     # 5
     def compile_var_dec(self) -> None:
