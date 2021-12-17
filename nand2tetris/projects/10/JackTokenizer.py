@@ -14,11 +14,11 @@ SYMBOLS = ["{", "}", "[", "]", "(", ")", ".", ",", ";", "+", "-", "*", "/",
             "&", "|", "<", ">", "=", "~"]
 
 
-KEYWORD = "KEYWORD"
-SYMBOL = "SYMBOL"
-IDENTIFIER = "IDENTIFIER"
-INT_CONST = "INT_CONST"
-STRING_CONST = "STRING_CONST"
+KEYWORD = "keyword"
+SYMBOL = "symbol"
+IDENTIFIER = "identifier"
+INT_CONST = "int_const"
+STRING_CONST = "string_const"
 
 
 class JackTokenizer:

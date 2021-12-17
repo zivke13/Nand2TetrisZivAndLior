@@ -18,6 +18,8 @@ SUBROUTINE_DEC_TYPES = ["constructor", "function", "method"]
 VAR_DEC_TYPE = "var"
 IDENTIFIER_TYPE = "IDENTIFIER"
 ELSE_TYPE = "else"
+COMMA = ','
+OP = ["+", "-", "*", "/", "&", "|", "<", ">", "="]
 
 
 class CompilationEngine:
@@ -178,14 +180,18 @@ class CompilationEngine:
 
             with self._write_tag("statements"):
                 self.compile_statements()
+
             self._write_token()
 
     # 12
     def compile_expression(self) -> None:
         """Compiles an expression."""
-        # Your code goes here!
-        pass
-
+        with self._write_tag("term"):
+            self.compile_term()
+        if self.tokenizer.symbol() in OP:
+            self._write_token()
+            with self._write_tag("term"):
+                self.compile_term()
     # 13
     def compile_term(self) -> None:
         """Compiles a term. 
@@ -197,13 +203,34 @@ class CompilationEngine:
         to distinguish between the three possibilities. Any other token is not
         part of this term and should not be advanced over.
         """
-        # Your code goes here!
-        pass
+        if self.tokenizer.symbol() == '(':
+            self._write_token()
+            with self._write_tag("expression"):
+                self.compile_expression()
+            self._write_token()
+        else:
+            self._write_token()
+            if self.tokenizer.symbol() == '[':
+                self._write_token()
+                with self._write_tag("expression"):
+                    self.compile_expression()
+                self._write_token()
+
+
+
 
     # 14
     def compile_expression_list(self) -> None:
         """Compiles a (possibly empty) comma-separated list of expressions."""
-        # Your code goes here!
+        with self._write_tag("expression"):
+            self.compile_expression()
+        if self.tokenizer.symbol() == COMMA:
+            self._write_token()
+            with self._write_tag("expression"):
+                self.compile_expression()
+        self._write_token()
+
+
         pass
 
     def write_to_file(self) -> None:
