@@ -16,7 +16,7 @@ from JackTokenizer import JackTokenizer
 CLASS_VAR_DEC_TYPES = ["field", "static"]
 SUBROUTINE_DEC_TYPES = ["constructor", "function", "method"]
 VAR_DEC_TYPE = "var"
-IDENTIFIER_TYPE = "IDENTIFIER"
+IDENTIFIER_TYPE = "identifier"
 ELSE_TYPE = "else"
 COMMA = ','
 OP = ["+", "-", "*", "/", "&", "|", "<", ">", "="]
@@ -117,7 +117,6 @@ class CompilationEngine:
 
         with self._write_tag("expressionList"):
             self.compile_expression_list()
-
         for i in range(2):
             self._write_token()
 
@@ -216,22 +215,14 @@ class CompilationEngine:
                     self.compile_expression()
                 self._write_token()
 
-
-
-
     # 14
     def compile_expression_list(self) -> None:
         """Compiles a (possibly empty) comma-separated list of expressions."""
-        with self._write_tag("expression"):
-            self.compile_expression()
-        if self.tokenizer.symbol() == COMMA:
-            self._write_token()
+        while self.tokenizer.symbol() != ")":
             with self._write_tag("expression"):
                 self.compile_expression()
-        self._write_token()
-
-
-        pass
+            if self.tokenizer.symbol() == COMMA:
+                self._write_token()
 
     def write_to_file(self) -> None:
         xml = minidom.parseString(tostring(self.root)).toprettyxml(" " * 2)
