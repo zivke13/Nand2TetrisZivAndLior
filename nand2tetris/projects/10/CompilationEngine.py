@@ -112,8 +112,9 @@ class CompilationEngine:
 
     def compile_do(self) -> None:
         """Compiles a do statement."""
-        for i in range(5):
+        while self.tokenizer.symbol() != "(":
             self._write_token()
+        self._write_token()
 
         with self._write_tag("expressionList"):
             self.compile_expression_list()
@@ -226,13 +227,13 @@ class CompilationEngine:
 
     def write_to_file(self) -> None:
         xml = minidom.parseString(tostring(self.root)).toprettyxml(" " * 2)
-        pretty_xml = '\n'.join(xml.splitlines()[1:])
+        pretty_xml = self._make_xml_pretty(xml)
         self.output_stream.write(pretty_xml)
 
     def _write_token(self) -> None:
         self.tag_count += 1
         new_element = Element(self.tokenizer.token_type())
-        new_element.text = self.tokenizer.symbol()
+        new_element.text = " {} ".format(self.tokenizer.symbol())
         self.current_element.insert(self.tag_count, new_element)
 
         if self.tokenizer.has_more_tokens():
@@ -246,4 +247,15 @@ class CompilationEngine:
         self.current_element.insert(self.tag_count, new_tag)
         self.current_element = new_tag
         yield
+
+        if len(list(new_tag)) == 0:
+            new_tag.text = "\n"
         self.current_element = current_element
+
+    @staticmethod
+    def _make_xml_pretty(xml):
+        lines = xml.splitlines()[1:]
+        for i in range(len(lines) - 1):
+            if lines[i].strip() == lines[i+1].strip().replace("</", "<"):
+                lines[i+1] = " " * lines[i].find("<") + lines[i+1]
+        return "\n".join(lines)

@@ -17,7 +17,7 @@ SYMBOLS = ["{", "}", "[", "]", "(", ")", ".", ",", ";", "+", "-", "*", "/",
 KEYWORD = "keyword"
 SYMBOL = "symbol"
 IDENTIFIER = "identifier"
-INT_CONST = "int_const"
+INT_CONST = "integerConstant"
 STRING_CONST = "string_const"
 
 
