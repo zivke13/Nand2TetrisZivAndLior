@@ -123,9 +123,17 @@ class CompilationEngine:
 
     def compile_let(self) -> None:
         """Compiles a let statement."""
-        self._write_token()
-        if self.tokenizer.token_type() == IDENTIFIER_TYPE:
+        for i in range(2):
             self._write_token()
+
+        if self.tokenizer.symbol() == "[":
+            self._write_token()
+
+            with self._write_tag("expression"):
+                self.compile_expression()
+
+            self._write_token()
+
         self._write_token()
 
         with self._write_tag("expression"):
@@ -183,7 +191,6 @@ class CompilationEngine:
 
             self._write_token()
 
-    # 12
     def compile_expression(self) -> None:
         """Compiles an expression."""
         with self._write_tag("term"):
@@ -192,7 +199,7 @@ class CompilationEngine:
             self._write_token()
             with self._write_tag("term"):
                 self.compile_term()
-    # 13
+
     def compile_term(self) -> None:
         """Compiles a term. 
         This routine is faced with a slight difficulty when
@@ -203,11 +210,45 @@ class CompilationEngine:
         to distinguish between the three possibilities. Any other token is not
         part of this term and should not be advanced over.
         """
-        if self.tokenizer.symbol() == '(':
+        next_symbol = self.tokenizer.next_symbol()
+        if self.tokenizer.symbol() in ["-", "~"]:
+            self._write_token()
+            with self._write_tag("term"):
+                self.compile_term()
+
+        elif self.tokenizer.symbol() == '(':
             self._write_token()
             with self._write_tag("expression"):
                 self.compile_expression()
             self._write_token()
+
+        elif next_symbol == "(":
+            for i in range(2):
+                self._write_token()
+
+            with self._write_tag("expressionList"):
+                self.compile_expression_list()
+
+            self._write_token()
+
+        elif next_symbol == "[":
+            for i in range(2):
+                self._write_token()
+
+            with self._write_tag("expression"):
+                self.compile_expression()
+
+            self._write_token()
+
+        elif next_symbol == ".":
+            for i in range(4):
+                self._write_token()
+
+            with self._write_tag("expressionList"):
+                self.compile_expression_list()
+
+            self._write_token()
+
         else:
             self._write_token()
             if self.tokenizer.symbol() == '[':
@@ -216,7 +257,6 @@ class CompilationEngine:
                     self.compile_expression()
                 self._write_token()
 
-    # 14
     def compile_expression_list(self) -> None:
         """Compiles a (possibly empty) comma-separated list of expressions."""
         while self.tokenizer.symbol() != ")":
@@ -233,7 +273,10 @@ class CompilationEngine:
     def _write_token(self) -> None:
         self.tag_count += 1
         new_element = Element(self.tokenizer.token_type())
-        new_element.text = " {} ".format(self.tokenizer.symbol())
+        element_text = self.tokenizer.symbol()
+        if self.tokenizer.token_type() == "stringConstant":
+            element_text = element_text[1:-1]
+        new_element.text = " {} ".format(element_text)
         self.current_element.insert(self.tag_count, new_element)
 
         if self.tokenizer.has_more_tokens():

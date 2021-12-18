@@ -1,7 +1,7 @@
-bartsimp, lisasimp
+liorsharon, zivi11
 ===============================================================================
-Bart Simpson, ID 011111111, bart@mail.huji.ac.il
-Lisa Simpson, ID 022222222, lisa@mail.huji.ac.il
+Lior Sharon, ID 322263013, lior.sharon@mail.huji.ac.il
+Ziv Kohn, ID 322890864, ziv.kohn@mail.huji.ac.il
 ===============================================================================
 
                            Project 10 - Compilation
@@ -13,9 +13,9 @@ Submitted Files
 README - This file.
 JackAnalyzer - The executable.
 Makefile - A makefile for the project.
-JackAnalyzer.py - 
-JackTokenizer.py - 
-CompilationEngine.py - 
+JackAnalyzer.py - Analyze the file, initialize the tokenizer and compilation engine and call engine.compile_class()
+JackTokenizer.py - Tokenize the jack file into tags with token_type and symbol
+CompilationEngine.py - compile tokenized tags into an xml
 Include other files required by your project, if there are any.
 
 Remarks

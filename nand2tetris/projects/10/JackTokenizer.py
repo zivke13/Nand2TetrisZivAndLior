@@ -18,7 +18,7 @@ KEYWORD = "keyword"
 SYMBOL = "symbol"
 IDENTIFIER = "identifier"
 INT_CONST = "integerConstant"
-STRING_CONST = "string_const"
+STRING_CONST = "stringConstant"
 
 
 class JackTokenizer:
@@ -57,10 +57,10 @@ class JackTokenizer:
         for i in range(0, len(self.input_lines), 1):
             split_string = self.input_lines[i].split("//", 1)
             self.input_lines[i] = split_string[0]
-            split_string = self.input_lines[i].split("/*", 1)
-            self.input_lines[i] = split_string[0]
-            split_string = self.input_lines[i].split("*", 1)
-            self.input_lines[i] = split_string[0]
+            if self.input_lines[i].strip().startswith("*") or \
+               self.input_lines[i].strip().startswith("/**") or\
+               self.input_lines[i].strip().startswith("*/"):
+               self.input_lines[i] = ""
 
     def split_line_to_token(self, line):
         identifiers = '\w+'
@@ -145,6 +145,16 @@ class JackTokenizer:
         # Your code goes here!
         return self.current
         pass
+
+    def next_symbol(self) -> str:
+        """
+        Returns:
+            str: the character which is the current token.
+            Should be called only when token_type() is "SYMBOL".
+        """
+        if self.i + 1 == len(self.input_tokens):
+            return None
+        return self.input_tokens[self.i + 1]
 
     def identifier(self) -> str:
         """
