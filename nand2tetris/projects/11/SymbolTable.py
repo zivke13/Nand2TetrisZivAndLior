@@ -36,11 +36,18 @@ class SymbolTable:
             "STATIC", "FIELD", "ARG", "VAR".
         """
         kind_count = self.var_count(kind)
-        self.subroutine_table[name] = {
-            "type": type,
-            "kind": kind,
-            "index": kind_count
-        }
+        if kind in ["static", "field"]:
+            self.class_table[name] = {
+                "type": type,
+                "kind": kind,
+                "index": kind_count
+            }
+        else:
+            self.subroutine_table[name] = {
+                "type": type,
+                "kind": kind,
+                "index": kind_count
+            }
 
     def var_count(self, kind: str) -> int:
         """
@@ -51,8 +58,10 @@ class SymbolTable:
             int: the number of variables of the given kind already defined in 
             the current scope.
         """
-        return len([k for k, v in self.subroutine_table if v["kind"] == kind]) + \
-               len([k for k, v in self.class_table if v["kind"] == kind])
+        if kind in ["static", "field"]:
+            return len([k for k, v in self.subroutine_table if v["kind"] == kind])
+        else:
+           return len([k for k, v in self.class_table if v["kind"] == kind])
 
     def kind_of(self, name: str) -> typing.Optional[str]:
         """
