@@ -7,10 +7,20 @@ Unported License (https://creativecommons.org/licenses/by-nc-sa/3.0/).
 import os
 import sys
 import typing
+from xml.etree.ElementTree import Element
 from CompilationEngine import CompilationEngine
 from JackTokenizer import JackTokenizer
 from SymbolTable import SymbolTable
 from VMWriter import VMWriter
+
+
+def store_var_dec(var_dec_root: Element, symbol_table: SymbolTable):
+    var_kind, var_type, var_name, _ = list(var_dec_root)
+    symbol_table.define(var_name.text.strip(), var_type.text.strip(), var_kind.text.strip())
+
+
+def compile_subroutine(subroutine_root: Element, symbol_table: SymbolTable, writer: VMWriter):
+    pass
 
 
 def compile_file(
@@ -24,7 +34,22 @@ def compile_file(
     tokenizer = JackTokenizer(input_file)
     engine = CompilationEngine(input_file, output_file, tokenizer)
     engine.compile_class()
+
     root = engine.root
+    top_level_tags: typing.List[Element] = list(root)
+    class_name = top_level_tags[1].text.strip()
+
+    writer = VMWriter(output_file, class_name)
+    symbol_table = SymbolTable()
+
+    for dec in top_level_tags[3:-1]:
+        if dec.tag == "classVarDec":
+            store_var_dec(dec, symbol_table)
+
+        elif dec.tag == "subroutineDec":
+            compile_subroutine(dec, symbol_table, writer)
+
+    writer.close()
 
 
 if "__main__" == __name__:
