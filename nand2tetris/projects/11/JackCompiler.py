@@ -143,6 +143,40 @@ def compile_term(term_root: Element, symbol_table: SymbolTable, writer: VMWriter
     if len(term_root) == 1:
         compile_length_1_term(term_root, symbol_table, writer)
 
+    elif len(term_root) == 2 and list(term_root)[0].tag == "symbol":
+        compile_term(list(term_root)[1], symbol_table, writer)
+        op = list(term_root)[0].text.strip()
+        writer.write_arithmetic("neg" if op == "-" else "not")
+
+    elif is_function_call(term_root):
+        compile_function_call_term(term_root, symbol_table, writer)
+
+
+def compile_function_call_term(term_root: Element, symbol_table: SymbolTable, writer: VMWriter):
+    func_name = list(term_root)[:-3]
+    exp_list = list(term_root)[-2]
+    if len(func_name) == 1:
+        writer.write_push("pointer", 0)
+        compile_expression_list(exp_list, symbol_table, writer)
+        writer.write_call(func_name[0].text.strip(), len(exp_list) + 1)
+    elif len(func_name) == 3:
+        caller = func_name[0].text.strip()
+        name = func_name[2].text.strip()
+        segment = symbol_table.kind_of(caller)
+        if segment is None:
+            compile_expression_list(exp_list, symbol_table, writer)
+            writer.write_call(f"{caller}.{name}", len(exp_list))
+        else:
+            if segment == "field":
+                segment = "this"
+            elif segment == "var":
+                segment = "local"
+            idx = symbol_table.index_of(caller)
+            writer.write_push(segment, idx)
+            compile_expression_list(exp_list, symbol_table, writer)
+            func_class = symbol_table.type_of(caller)
+            writer.write_call(f"{func_class}.{name}", len(exp_list) + 1)
+
 
 def compile_length_1_term(term_root: Element, symbol_table: SymbolTable, writer: VMWriter):
     tag = list(term_root)[0]
@@ -184,6 +218,11 @@ def compile_string(string: str, writer: VMWriter):
 def compile_expression_list(exp_list_root: Element, symbol_table: SymbolTable, writer: VMWriter):
     for exp in exp_list_root:
         compile_expression(exp, symbol_table, writer)
+
+
+def is_function_call(term_root: Element):
+    elements = list(term_root)
+    return elements[-3].text.strip() == "(" and elements[-2].tag == "expressionList" and elements[-1].text.strip() == ")"
 
 
 def compile_file(
