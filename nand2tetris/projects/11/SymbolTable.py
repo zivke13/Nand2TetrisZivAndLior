@@ -59,9 +59,9 @@ class SymbolTable:
             the current scope.
         """
         if kind in ["static", "field"]:
-            return len([k for k, v in self.subroutine_table if v["kind"] == kind])
+            return len([k for k, v in self.class_table.items() if v["kind"] == kind])
         else:
-           return len([k for k, v in self.class_table if v["kind"] == kind])
+           return len([k for k, v in self.subroutine_table.items() if v["kind"] == kind])
 
     def kind_of(self, name: str) -> typing.Optional[str]:
         """
@@ -76,7 +76,7 @@ class SymbolTable:
             return self.subroutine_table[name]["kind"]
 
         if name in self.class_table:
-            return self.subroutine_table[name]["kind"]
+            return self.class_table[name]["kind"]
 
         return None
 
