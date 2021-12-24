@@ -100,11 +100,8 @@ def compile_do(statements_root: Element, symbol_table: SymbolTable, writer: VMWr
             writer.write_pop("temp", 0)
 
         else:
-            if kind == "field":
-                kind = "this"
-            elif kind == "var":
-                kind = "local"
-            writer.write_push(kind, symbol_table.index_of(statements_root_list[1]))
+            segment = kind_to_segment(kind)
+            writer.write_push(segment, symbol_table.index_of(statements_root_list[1]))
             # push exp list
             compile_expression_list(statements_root_list[5], symbol_table, writer)
             exp_list = statements_root_list[-3]
@@ -127,11 +124,8 @@ def compile_let(statements_root: Element, symbol_table: SymbolTable, writer: VMW
     statements_root_list = list(statements_root)
     if(statements_root_list[2].text.strip() == "["):
         kind = symbol_table.kind_of(statements_root_list[1].text.strip())
-        if kind == "field":
-            kind = "this"
-        elif kind == "var":
-            kind = "local"
-        writer.write_push(kind, symbol_table.index_of(statements_root_list[1].text.strip()))
+        segment = kind_to_segment(kind)
+        writer.write_push(segment, symbol_table.index_of(statements_root_list[1].text.strip()))
         compile_expression(statements_root_list[3], symbol_table, writer)
         writer.write_arithmetic("add")
         compile_expression(statements_root_list[-2], symbol_table, writer)
@@ -143,13 +137,10 @@ def compile_let(statements_root: Element, symbol_table: SymbolTable, writer: VMW
 
     else:
         kind = symbol_table.kind_of(statements_root_list[1].text.strip())
-        if kind == "field":
-            kind = "this"
-        elif kind == "var":
-            kind = "local"
+        segment = kind_to_segment(kind)
 
         compile_expression(statements_root_list[3], symbol_table, writer)
-        writer.write_pop(kind, symbol_table.index_of(statements_root_list[1].text.strip()))
+        writer.write_pop(segment, symbol_table.index_of(statements_root_list[1].text.strip()))
 
 
 def compile_while(while_root: Element, symbol_table: SymbolTable, writer: VMWriter):
@@ -230,6 +221,19 @@ def compile_term(term_root: Element, symbol_table: SymbolTable, writer: VMWriter
     elif is_parentheses_exp(term_root):
         compile_expression(list(term_root)[1], symbol_table, writer)
 
+    elif list(term_root)[1].text.strip() == "[":
+        kind = symbol_table.kind_of(list(term_root)[0].text.strip())
+        segment = kind_to_segment(kind)
+        idx = symbol_table.index_of(list(term_root)[0].text.strip())
+
+        writer.write_push(segment, idx)
+        compile_expression(list(term_root)[2], symbol_table, writer)
+        writer.write_arithmetic("add")
+        writer.write_pop("pointer", 1)
+        writer.write_push("that", 0)
+
+
+
 
 def compile_function_call_term(term_root: Element, symbol_table: SymbolTable, writer: VMWriter):
     func_name = list(term_root)[:-3]
@@ -241,15 +245,12 @@ def compile_function_call_term(term_root: Element, symbol_table: SymbolTable, wr
     elif len(func_name) == 3:
         caller = func_name[0].text.strip()
         name = func_name[2].text.strip()
-        segment = symbol_table.kind_of(caller)
-        if segment is None:
+        kind = symbol_table.kind_of(caller)
+        if kind is None:
             compile_expression_list(exp_list, symbol_table, writer)
             writer.write_call(f"{caller}.{name}", int((len(exp_list) + 1) / 2))
         else:
-            if segment == "field":
-                segment = "this"
-            elif segment == "var":
-                segment = "local"
+            segment = kind_to_segment(kind)
             idx = symbol_table.index_of(caller)
             writer.write_push(segment, idx)
             compile_expression_list(exp_list, symbol_table, writer)
@@ -266,11 +267,8 @@ def compile_length_1_term(term_root: Element, symbol_table: SymbolTable, writer:
     elif tag.tag == "stringInteger":
         compile_string(tag.text.strip(), writer)
     elif tag.tag == "identifier":
-        segment = symbol_table.kind_of(tag.text.strip())
-        if segment == "field":
-            segment = "this"
-        elif segment == "var":
-            segment = "local"
+        kind = symbol_table.kind_of(tag.text.strip())
+        segment = kind_to_segment(kind)
         writer.write_push(segment, symbol_table.index_of(tag.text.strip()))
 
 
@@ -310,6 +308,14 @@ def is_parentheses_exp(term_root: Element):
     elements = list(term_root)
     return len(elements) == 3 and elements[0].text.strip() == "(" and elements[1].tag == "expression" and \
            elements[2].text.strip() == ")"
+
+
+def kind_to_segment(kind: str):
+    if kind == "field":
+        return "this"
+    elif kind == "var":
+        return "local"
+    return kind
 
 
 def compile_file(
