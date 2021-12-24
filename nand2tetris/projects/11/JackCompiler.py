@@ -15,39 +15,81 @@ from VMWriter import VMWriter
 
 
 def store_var_dec(var_dec_root: Element, symbol_table: SymbolTable):
-    var_kind, var_type, var_name, _ = list(var_dec_root)
-    symbol_table.define(var_name.text.strip(), var_type.text.strip(), var_kind.text.strip())
+    var_kind, var_type = list(var_dec_root)[:2]
+    for var_name in list(var_dec_root)[2:-1:2]:
+        symbol_table.define(var_name.text.strip(), var_type.text.strip(), var_kind.text.strip())
 
 
 def compile_subroutine(subroutine_root: Element, symbol_table: SymbolTable, writer: VMWriter):
-    pass
+    symbol_table.start_subroutine()
+
+    func_name = list(subroutine_root)[2].text.strip()
+    num_args = 1 if list(subroutine_root)[0].text.strip() == "method" else 0
+    num_args += store_parameter_list(list(subroutine_root)[4], symbol_table)
+    writer.write_function(func_name, num_args)
+
+    return_type = list(subroutine_root)[1].text.strip()
+    if return_type == writer.class_name:
+        object_size = symbol_table.var_count("field")
+        writer.write_push("constant", object_size)
+        writer.write_call("Memory.alloc", 1)
+        writer.write_pop("pointer", 0)
+
+    body = list(subroutine_root)[6]
+    for block in list(body)[1:-1]:
+        if block.tag == "varDec":
+            store_var_dec(block, symbol_table)
+        elif block.tag == "statements":
+            compile_statements(block, symbol_table, writer)
 
 
-def store_parameter_list(var_dec_root: Element, symbol_table: SymbolTable)):
-    pass
-def compile_statements():
-    pass
+def store_parameter_list(var_dec_root: Element, symbol_table: SymbolTable) -> int:
+    for i in range(len(var_dec_root))[::3]:
+        symbol_table.define(list(var_dec_root)[i+1].text.strip(), list(var_dec_root)[i].text.strip(), "argument")
+    return int((len(list(var_dec_root)) + 1) / 3)
+
+
+def compile_statements(statements_root: Element, symbol_table: SymbolTable, writer: VMWriter):
+    for statement in statements_root:
+        if statement.tag.text == "doStatement":
+            compile_do(statement, symbol_table, writer)
+        elif statement.tag.text == "ifStatement":
+            compile_if(statement, symbol_table, writer)
+        elif statement.tag.text == "whileStatement":
+            compile_while(statement, symbol_table, writer)
+        elif statement.tag.text == "letStatement":
+            compile_let(statement, symbol_table, writer)
+        elif statement.tag.text == "returnStatement":
+            compile_return(statement, symbol_table, writer)
+
 
 def compile_do():
     pass
 
+
 def compile_let():
     pass
+
 
 def compile_while():
     pass
 
+
 def compile_return():
     pass
+
 
 def compile_if():
     pass
 
+
 def compile_expression():
     pass
 
+
 def compile_term():
     pass
+
 
 def compile_expression_list():
     pass
