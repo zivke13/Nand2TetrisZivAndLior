@@ -139,8 +139,46 @@ def compile_op(op_root: Element, symbol_table: SymbolTable, writer: VMWriter):
     writer.write_arithmetic(OPS[op_root.text.strip()])  # TODO: mul and div
 
 
-def compile_term():
-    pass
+def compile_term(term_root: Element, symbol_table: SymbolTable, writer: VMWriter):
+    if len(term_root) == 1:
+        compile_length_1_term(term_root, symbol_table, writer)
+
+
+def compile_length_1_term(term_root: Element, symbol_table: SymbolTable, writer: VMWriter):
+    tag = list(term_root)[0]
+    if tag.tag == "keyword":
+        compile_keyword(tag.text.strip(), writer)
+    elif tag.tag == "integerConstant":
+        writer.write_push("constant", tag.text.strip())
+    elif tag.tag == "stringInteger":
+        compile_string(tag.text.strip(), writer)
+    elif tag.tag == "identifier":
+        segment = symbol_table.kind_of(tag.text.strip())
+        if segment == "field":
+            segment = "this"
+        elif segment == "var":
+            segment = "local"
+        writer.write_push(segment, symbol_table.index_of(tag.text.strip()))
+
+
+def compile_keyword(keyword: str, writer: VMWriter):
+    if keyword == "false":
+        writer.write_push("constant", 0)
+    elif keyword == "true":
+        writer.write_push("constant", -1)
+    elif keyword == "null":
+        writer.write_push("constant", 0)
+    elif keyword == "this":
+        writer.write_push("pointer", 0)
+
+
+def compile_string(string: str, writer: VMWriter):
+    writer.write_push("constant", len(string))
+    writer.write_call("String.new", 1)
+
+    for c in string:
+        writer.write_push("constant", ord(c))
+        writer.write_call("String.appendChar", 1)
 
 
 def compile_expression_list(exp_list_root: Element, symbol_table: SymbolTable, writer: VMWriter):
