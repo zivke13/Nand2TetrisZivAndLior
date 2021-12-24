@@ -13,7 +13,11 @@ from JackTokenizer import JackTokenizer
 from SymbolTable import SymbolTable
 from VMWriter import VMWriter
 
-OPS = {
+UNARY_OPS = {
+    "-": "neg",
+    "~": "not"
+}
+BINARY_OPS = {
     "+": "add",
     "-": "sub",
     "<": "lt",
@@ -137,7 +141,13 @@ def compile_expression(expression_root: Element, symbol_table: SymbolTable, writ
 
 
 def compile_op(op_root: Element, symbol_table: SymbolTable, writer: VMWriter):
-    writer.write_arithmetic(OPS[op_root.text.strip()])  # TODO: mul and div
+    op = op_root.text.strip()
+    if op == "*":
+        writer.write_call("Math.multiply", 2)
+    elif op == "/":
+        writer.write_call("Math.divide", 2)
+    else:
+        writer.write_arithmetic(BINARY_OPS[op])
 
 
 def compile_term(term_root: Element, symbol_table: SymbolTable, writer: VMWriter):
@@ -147,7 +157,7 @@ def compile_term(term_root: Element, symbol_table: SymbolTable, writer: VMWriter
     elif len(term_root) == 2 and list(term_root)[0].tag == "symbol":
         compile_term(list(term_root)[1], symbol_table, writer)
         op = list(term_root)[0].text.strip()
-        writer.write_arithmetic("neg" if op == "-" else "not")
+        writer.write_arithmetic(UNARY_OPS[op])
 
     elif is_function_call(term_root):
         compile_function_call_term(term_root, symbol_table, writer)
