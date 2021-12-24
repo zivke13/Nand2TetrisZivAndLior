@@ -13,7 +13,14 @@ from JackTokenizer import JackTokenizer
 from SymbolTable import SymbolTable
 from VMWriter import VMWriter
 
-
+OPS = {
+    "+": "add",
+    "-": "sub",
+    "<": "lt",
+    ">": "gt",
+    "&": "and",
+    "|": "or"
+}
 label_counter = 0
 
 
@@ -119,8 +126,17 @@ def compile_if(if_root: Element, symbol_table: SymbolTable, writer: VMWriter):
     writer.write_label(second_label)
 
 
-def compile_expression():
-    pass
+def compile_expression(expression_root: Element, symbol_table: SymbolTable, writer: VMWriter):
+    compile_term(list(expression_root)[0], symbol_table, writer)
+
+    expression_count = len(list(expression_root))
+    for i in range(2, expression_count, 2):
+        compile_term(list(expression_root)[i], symbol_table, writer)
+        compile_op(list(expression_root)[i-1], symbol_table, writer)
+
+
+def compile_op(op_root: Element, symbol_table: SymbolTable, writer: VMWriter):
+    writer.write_arithmetic(OPS[op_root.text.strip()])  # TODO: mul and div
 
 
 def compile_term():
