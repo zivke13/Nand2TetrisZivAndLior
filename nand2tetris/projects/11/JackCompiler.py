@@ -125,15 +125,31 @@ def compile_do(statements_root: Element, symbol_table: SymbolTable, writer: VMWr
 def compile_let(statements_root: Element, symbol_table: SymbolTable, writer: VMWriter):
     #TODO: array case
     statements_root_list = list(statements_root)
-    # fild: this var:lcl
-    kind = symbol_table.kind_of(statements_root_list[1].text.strip())
-    if kind == "field":
-        kind = "this"
-    elif kind == "var":
-        kind = "local"
+    if(statements_root_list[2].text.strip() == "["):
+        kind = symbol_table.kind_of(statements_root_list[1].text.strip())
+        if kind == "field":
+            kind = "this"
+        elif kind == "var":
+            kind = "local"
+        writer.write_push(kind, symbol_table.index_of(statements_root_list[1].text.strip()))
+        compile_expression(statements_root_list[3], symbol_table, writer)
+        writer.write_arithmetic("add")
+        compile_expression(statements_root_list[-2], symbol_table, writer)
+        writer.write_pop("temp", 0)
+        writer.write_pop("pointer", 1)
+        writer.write_pop("temp", 0)
+        writer.write_pop("that", 0)
 
-    compile_expression(statements_root_list[3], symbol_table, writer)
-    writer.write_pop(kind, symbol_table.index_of(statements_root_list[1].text.strip()))
+
+    else:
+        kind = symbol_table.kind_of(statements_root_list[1].text.strip())
+        if kind == "field":
+            kind = "this"
+        elif kind == "var":
+            kind = "local"
+
+        compile_expression(statements_root_list[3], symbol_table, writer)
+        writer.write_pop(kind, symbol_table.index_of(statements_root_list[1].text.strip()))
 
 
 def compile_while(while_root: Element, symbol_table: SymbolTable, writer: VMWriter):
@@ -183,7 +199,6 @@ def compile_if(if_root: Element, symbol_table: SymbolTable, writer: VMWriter):
 
 def compile_expression(expression_root: Element, symbol_table: SymbolTable, writer: VMWriter):
     compile_term(list(expression_root)[0], symbol_table, writer)
-
     expression_count = len(list(expression_root))
     for i in range(2, expression_count, 2):
         compile_term(list(expression_root)[i], symbol_table, writer)
