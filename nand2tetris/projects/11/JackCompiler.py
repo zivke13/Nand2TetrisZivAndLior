@@ -92,8 +92,12 @@ def compile_while(while_root: Element, symbol_table: SymbolTable, writer: VMWrit
     writer.write_label(second_label)
 
 
-def compile_return():
-    pass
+def compile_return(return_root: Element, symbol_table: SymbolTable, writer: VMWriter):
+    if list(return_root)[1].tag == "expression":
+        compile_expression(list(return_root)[1], symbol_table, writer)
+    else:
+        writer.write_push("constant", 0)
+    writer.write_return()
 
 
 def compile_if(if_root: Element, symbol_table: SymbolTable, writer: VMWriter):
