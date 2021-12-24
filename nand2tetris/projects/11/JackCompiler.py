@@ -78,12 +78,52 @@ def compile_statements(statements_root: Element, symbol_table: SymbolTable, writ
             compile_return(statement, symbol_table, writer)
 
 
-def compile_do():
-    pass
+def compile_do(statements_root: Element, symbol_table: SymbolTable, writer: VMWriter):
+    statements_root_list = list(statements_root)
+
+    if statements_root_list[2].text.strip() == '.':
+        kind = symbol_table.kind_of(statements_root_list[1])
+        if kind is None:
+            # push exp list
+            compile_expression_list(statements_root_list[5], symbol_table , writer)
+            #call push.new
+            func_name = statements_root_list[1].text.strip() + "." + statements_root_list[3].text.strip()
+            exp_list = statements_root_list[-3]
+            writer.write_call(f"{func_name}", len(exp_list))
+
+        else:
+            if kind == "field":
+                kind = "this"
+            elif kind == "var":
+                kind = "local"
+            writer.write_push(kind, symbol_table.index_of(statements_root_list[1]))
+            # push exp list
+            compile_expression_list(statements_root_list[5], symbol_table, writer)
+            exp_list = statements_root_list[-3]
+            name = statements_root_list[3].text.strip()
+            writer.write_call(f"{symbol_table.type_of(statements_root_list[1])}.{name}", len(exp_list) + 1)
+    else:
+        writer.write_push("argument", 0)
+        # push exp list
+        compile_expression_list(statements_root_list[-3], symbol_table, writer)
+        name = statements_root_list[1].text.strip()
+        exp_list = statements_root_list[-3]
+        writer.write_call(f"{writer.class_name}.{name}", len(exp_list) + 1)
+        # call push.new Point.get
 
 
-def compile_let():
-    pass
+def compile_let(statements_root: Element, symbol_table: SymbolTable, writer: VMWriter):
+    #TODO: array case
+    statements_root_list = list(statements_root)
+    # fild: this var:lcl
+    kind = symbol_table.kind_of(statements_root_list[1])
+    if kind == "field":
+        kind = "this"
+    elif kind == "var":
+        kind = "local"
+
+    compile_expression(statements_root_list[3], symbol_table, writer)
+    writer.write_pop(kind, symbol_table.index_of(statements_root_list[1]))
 
 
 def compile_while(while_root: Element, symbol_table: SymbolTable, writer: VMWriter):
@@ -273,8 +313,6 @@ def compile_file(
             compile_subroutine(dec, symbol_table, writer)
 
     writer.close()
-
-
 
 
 if "__main__" == __name__:
