@@ -76,7 +76,7 @@ class SymbolTable:
             return self.subroutine_table[name]["kind"]
 
         if name in self.class_table:
-            return self.subroutine_table[name]["kind"]
+            return self.class_table[name]["kind"]
 
         return None
 

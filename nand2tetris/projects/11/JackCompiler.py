@@ -66,15 +66,15 @@ def store_parameter_list(var_dec_root: Element, symbol_table: SymbolTable) -> in
 
 def compile_statements(statements_root: Element, symbol_table: SymbolTable, writer: VMWriter):
     for statement in statements_root:
-        if statement.tag.text == "doStatement":
+        if statement.tag == "doStatement":
             compile_do(statement, symbol_table, writer)
-        elif statement.tag.text == "ifStatement":
+        elif statement.tag == "ifStatement":
             compile_if(statement, symbol_table, writer)
-        elif statement.tag.text == "whileStatement":
+        elif statement.tag == "whileStatement":
             compile_while(statement, symbol_table, writer)
-        elif statement.tag.text == "letStatement":
+        elif statement.tag == "letStatement":
             compile_let(statement, symbol_table, writer)
-        elif statement.tag.text == "returnStatement":
+        elif statement.tag == "returnStatement":
             compile_return(statement, symbol_table, writer)
 
 
