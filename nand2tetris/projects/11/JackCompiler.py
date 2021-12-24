@@ -23,6 +23,36 @@ def compile_subroutine(subroutine_root: Element, symbol_table: SymbolTable, writ
     pass
 
 
+def store_parameter_list(var_dec_root: Element, symbol_table: SymbolTable)):
+    pass
+def compile_statements():
+    pass
+
+def compile_do():
+    pass
+
+def compile_let():
+    pass
+
+def compile_while():
+    pass
+
+def compile_return():
+    pass
+
+def compile_if():
+    pass
+
+def compile_expression():
+    pass
+
+def compile_term():
+    pass
+
+def compile_expression_list():
+    pass
+
+
 def compile_file(
         input_file: typing.TextIO, output_file: typing.TextIO) -> None:
     """Compiles a single file.
@@ -50,6 +80,8 @@ def compile_file(
             compile_subroutine(dec, symbol_table, writer)
 
     writer.close()
+
+
 
 
 if "__main__" == __name__:
