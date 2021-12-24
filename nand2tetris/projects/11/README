@@ -1,7 +1,7 @@
-bartsimp, lisasimp
+liorsharon, zivi11
 ===============================================================================
-Bart Simpson, ID 011111111, bart@mail.huji.ac.il
-Lisa Simpson, ID 022222222, lisa@mail.huji.ac.il
+Lior Sharon, ID 322263013, lior.sharon@mail.huji.ac.il
+Ziv Kohn, ID 322890864, ziv.kohn@mail.huji.ac.il
 ===============================================================================
 
                            Project 11 - Compilation, Continued
@@ -13,11 +13,11 @@ Submitted Files
 README - This file.
 JackCompiler - The executable.
 Makefile - A makefile for the project.
-JackCompiler.py - 
-JackTokenizer.py - 
-CompilationEngine.py - 
-VMWriter.py - 
-SymbolTable.py - 
+JackCompiler.py - compile a jack program into vm
+JackTokenizer.py - tokenize a jack into raw xml tokens
+CompilationEngine.py - format the tokenizer's tokens into xml structure
+VMWriter.py - write pure vm commands
+SymbolTable.py - map between variables and their type and segments
 Include other files required by your project, if there are any.
 
 Remarks
