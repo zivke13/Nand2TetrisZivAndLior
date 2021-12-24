@@ -19,7 +19,8 @@ OPS = {
     "<": "lt",
     ">": "gt",
     "&": "and",
-    "|": "or"
+    "|": "or",
+    "=": "eq"
 }
 label_counter = 0
 
@@ -151,6 +152,9 @@ def compile_term(term_root: Element, symbol_table: SymbolTable, writer: VMWriter
     elif is_function_call(term_root):
         compile_function_call_term(term_root, symbol_table, writer)
 
+    elif is_parentheses_exp(term_root):
+        compile_expression(list(term_root)[1], symbol_table, writer)
+
 
 def compile_function_call_term(term_root: Element, symbol_table: SymbolTable, writer: VMWriter):
     func_name = list(term_root)[:-3]
@@ -222,7 +226,14 @@ def compile_expression_list(exp_list_root: Element, symbol_table: SymbolTable, w
 
 def is_function_call(term_root: Element):
     elements = list(term_root)
-    return elements[-3].text.strip() == "(" and elements[-2].tag == "expressionList" and elements[-1].text.strip() == ")"
+    return elements[-3].text.strip() == "(" and elements[-2].tag == "expressionList" and \
+           elements[-1].text.strip() == ")"
+
+
+def is_parentheses_exp(term_root: Element):
+    elements = list(term_root)
+    return len(elements) == 3 and elements[0].text.strip() == "(" and elements[1].tag == "expression" and \
+           elements[2].text.strip() == ")"
 
 
 def compile_file(
