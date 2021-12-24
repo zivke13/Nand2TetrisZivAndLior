@@ -74,8 +74,22 @@ def compile_let():
     pass
 
 
-def compile_while():
-    pass
+def compile_while(while_root: Element, symbol_table: SymbolTable, writer: VMWriter):
+    global label_counter
+    first_label = f"label.{label_counter}"
+    label_counter += 1
+    second_label = f"label.{label_counter}"
+    label_counter += 1
+
+    writer.write_label(first_label)
+    compile_expression(list(while_root)[2], symbol_table, writer)
+    writer.write_arithmetic("not")
+
+    writer.write_if(second_label)
+    compile_statements(list(while_root)[5], symbol_table, writer)
+
+    writer.write_goto(first_label)
+    writer.write_label(second_label)
 
 
 def compile_return():
