@@ -39,8 +39,8 @@ def compile_subroutine(subroutine_root: Element, symbol_table: SymbolTable, writ
     symbol_table.start_subroutine()
 
     func_name = list(subroutine_root)[2].text.strip()
-    num_args = 1 if list(subroutine_root)[0].text.strip() == "method" else 0
-    num_args += store_parameter_list(list(subroutine_root)[4], symbol_table)
+    store_parameter_list(list(subroutine_root)[4], symbol_table)
+    num_args = count_func_args(subroutine_root)
     writer.write_function(func_name, num_args)
 
     return_type = list(subroutine_root)[1].text.strip()
@@ -64,6 +64,13 @@ def store_parameter_list(var_dec_root: Element, symbol_table: SymbolTable) -> in
     return int((len(list(var_dec_root)) + 1) / 3)
 
 
+def count_func_args(subroutine_root: Element) -> int:
+    total_args = 0
+    for vardec in subroutine_root.findall(".//varDec"):
+        total_args += int((len(list(vardec)) - 2) / 2)
+    return total_args
+
+
 def compile_statements(statements_root: Element, symbol_table: SymbolTable, writer: VMWriter):
     for statement in statements_root:
         if statement.tag == "doStatement":
@@ -85,11 +92,12 @@ def compile_do(statements_root: Element, symbol_table: SymbolTable, writer: VMWr
         kind = symbol_table.kind_of(statements_root_list[1])
         if kind is None:
             # push exp list
-            compile_expression_list(statements_root_list[5], symbol_table , writer)
+            compile_expression_list(statements_root_list[5], symbol_table, writer)
             #call push.new
             func_name = statements_root_list[1].text.strip() + "." + statements_root_list[3].text.strip()
             exp_list = statements_root_list[-3]
-            writer.write_call(f"{func_name}", len(exp_list))
+            writer.write_call(f"{func_name}", int((len(exp_list) + 1) / 2))
+            writer.write_pop("temp", 0)
 
         else:
             if kind == "field":
@@ -101,14 +109,16 @@ def compile_do(statements_root: Element, symbol_table: SymbolTable, writer: VMWr
             compile_expression_list(statements_root_list[5], symbol_table, writer)
             exp_list = statements_root_list[-3]
             name = statements_root_list[3].text.strip()
-            writer.write_call(f"{symbol_table.type_of(statements_root_list[1])}.{name}", len(exp_list) + 1)
+            writer.write_call(f"{symbol_table.type_of(statements_root_list[1])}.{name}", int((len(exp_list) + 1) / 2) + 1)
+            writer.write_pop("temp", 0)
     else:
         writer.write_push("argument", 0)
         # push exp list
         compile_expression_list(statements_root_list[-3], symbol_table, writer)
         name = statements_root_list[1].text.strip()
         exp_list = statements_root_list[-3]
-        writer.write_call(f"{writer.class_name}.{name}", len(exp_list) + 1)
+        writer.write_call(f"{writer.class_name}.{name}", int((len(exp_list) + 1) / 2) + 1)
+        writer.write_pop("temp", 0)
         # call push.new Point.get
 
 
@@ -116,14 +126,14 @@ def compile_let(statements_root: Element, symbol_table: SymbolTable, writer: VMW
     #TODO: array case
     statements_root_list = list(statements_root)
     # fild: this var:lcl
-    kind = symbol_table.kind_of(statements_root_list[1])
+    kind = symbol_table.kind_of(statements_root_list[1].text.strip())
     if kind == "field":
         kind = "this"
     elif kind == "var":
         kind = "local"
 
     compile_expression(statements_root_list[3], symbol_table, writer)
-    writer.write_pop(kind, symbol_table.index_of(statements_root_list[1]))
+    writer.write_pop(kind, symbol_table.index_of(statements_root_list[1].text.strip()))
 
 
 def compile_while(while_root: Element, symbol_table: SymbolTable, writer: VMWriter):
@@ -212,14 +222,14 @@ def compile_function_call_term(term_root: Element, symbol_table: SymbolTable, wr
     if len(func_name) == 1:
         writer.write_push("pointer", 0)
         compile_expression_list(exp_list, symbol_table, writer)
-        writer.write_call(func_name[0].text.strip(), len(exp_list) + 1)
+        writer.write_call(func_name[0].text.strip(), int((len(exp_list) + 1) / 2) + 1)
     elif len(func_name) == 3:
         caller = func_name[0].text.strip()
         name = func_name[2].text.strip()
         segment = symbol_table.kind_of(caller)
         if segment is None:
             compile_expression_list(exp_list, symbol_table, writer)
-            writer.write_call(f"{caller}.{name}", len(exp_list))
+            writer.write_call(f"{caller}.{name}", int((len(exp_list) + 1) / 2))
         else:
             if segment == "field":
                 segment = "this"
@@ -229,7 +239,7 @@ def compile_function_call_term(term_root: Element, symbol_table: SymbolTable, wr
             writer.write_push(segment, idx)
             compile_expression_list(exp_list, symbol_table, writer)
             func_class = symbol_table.type_of(caller)
-            writer.write_call(f"{func_class}.{name}", len(exp_list) + 1)
+            writer.write_call(f"{func_class}.{name}", int((len(exp_list) + 1) / 2) + 1)
 
 
 def compile_length_1_term(term_root: Element, symbol_table: SymbolTable, writer: VMWriter):
@@ -253,7 +263,8 @@ def compile_keyword(keyword: str, writer: VMWriter):
     if keyword == "false":
         writer.write_push("constant", 0)
     elif keyword == "true":
-        writer.write_push("constant", -1)
+        writer.write_push("constant", 1)
+        writer.write_arithmetic("neg")
     elif keyword == "null":
         writer.write_push("constant", 0)
     elif keyword == "this":
@@ -270,7 +281,7 @@ def compile_string(string: str, writer: VMWriter):
 
 
 def compile_expression_list(exp_list_root: Element, symbol_table: SymbolTable, writer: VMWriter):
-    for exp in exp_list_root:
+    for exp in list(exp_list_root)[::2]:
         compile_expression(exp, symbol_table, writer)
 
 
