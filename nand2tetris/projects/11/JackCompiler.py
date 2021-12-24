@@ -39,7 +39,7 @@ def compile_subroutine(subroutine_root: Element, symbol_table: SymbolTable, writ
     writer.write_function(func_name, num_args)
 
     return_type = list(subroutine_root)[1].text.strip()
-    if return_type == writer.class_name:
+    if return_type == writer.class_name:  # TODO: other classes size
         object_size = symbol_table.var_count("field")
         writer.write_push("constant", object_size)
         writer.write_call("Memory.alloc", 1)
@@ -143,8 +143,9 @@ def compile_term():
     pass
 
 
-def compile_expression_list():
-    pass
+def compile_expression_list(exp_list_root: Element, symbol_table: SymbolTable, writer: VMWriter):
+    for exp in exp_list_root:
+        compile_expression(exp, symbol_table, writer)
 
 
 def compile_file(
