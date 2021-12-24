@@ -37,11 +37,17 @@ def store_var_dec(var_dec_root: Element, symbol_table: SymbolTable):
 
 def compile_subroutine(subroutine_root: Element, symbol_table: SymbolTable, writer: VMWriter):
     symbol_table.start_subroutine()
+    if list(subroutine_root)[0].text.strip() == "method":
+        symbol_table.define("this", writer.class_name, "argument")
 
     func_name = list(subroutine_root)[2].text.strip()
     store_parameter_list(list(subroutine_root)[4], symbol_table)
     num_args = count_func_args(subroutine_root)
+
     writer.write_function(func_name, num_args)
+    if list(subroutine_root)[0].text.strip() == "method":
+        writer.write_push("argument", 0)
+        writer.write_pop("pointer", 0)
 
     return_type = list(subroutine_root)[1].text.strip()
     if return_type == writer.class_name:  # TODO: other classes size
@@ -89,7 +95,7 @@ def compile_do(statements_root: Element, symbol_table: SymbolTable, writer: VMWr
     statements_root_list = list(statements_root)
 
     if statements_root_list[2].text.strip() == '.':
-        kind = symbol_table.kind_of(statements_root_list[1])
+        kind = symbol_table.kind_of(statements_root_list[1].text.strip())
         if kind is None:
             # push exp list
             compile_expression_list(statements_root_list[5], symbol_table, writer)
@@ -101,15 +107,15 @@ def compile_do(statements_root: Element, symbol_table: SymbolTable, writer: VMWr
 
         else:
             segment = kind_to_segment(kind)
-            writer.write_push(segment, symbol_table.index_of(statements_root_list[1]))
+            writer.write_push(segment, symbol_table.index_of(statements_root_list[1].text.strip()))
             # push exp list
             compile_expression_list(statements_root_list[5], symbol_table, writer)
             exp_list = statements_root_list[-3]
             name = statements_root_list[3].text.strip()
-            writer.write_call(f"{symbol_table.type_of(statements_root_list[1])}.{name}", int((len(exp_list) + 1) / 2) + 1)
+            writer.write_call(f"{symbol_table.type_of(statements_root_list[1].text.strip())}.{name}", int((len(exp_list) + 1) / 2) + 1)
             writer.write_pop("temp", 0)
     else:
-        writer.write_push("argument", 0)
+        writer.write_push("pointer", 0)
         # push exp list
         compile_expression_list(statements_root_list[-3], symbol_table, writer)
         name = statements_root_list[1].text.strip()
@@ -120,9 +126,8 @@ def compile_do(statements_root: Element, symbol_table: SymbolTable, writer: VMWr
 
 
 def compile_let(statements_root: Element, symbol_table: SymbolTable, writer: VMWriter):
-    #TODO: array case
     statements_root_list = list(statements_root)
-    if(statements_root_list[2].text.strip() == "["):
+    if statements_root_list[2].text.strip() == "[":
         kind = symbol_table.kind_of(statements_root_list[1].text.strip())
         segment = kind_to_segment(kind)
         writer.write_push(segment, symbol_table.index_of(statements_root_list[1].text.strip()))
@@ -131,9 +136,8 @@ def compile_let(statements_root: Element, symbol_table: SymbolTable, writer: VMW
         compile_expression(statements_root_list[-2], symbol_table, writer)
         writer.write_pop("temp", 0)
         writer.write_pop("pointer", 1)
-        writer.write_pop("temp", 0)
+        writer.write_push("temp", 0)
         writer.write_pop("that", 0)
-
 
     else:
         kind = symbol_table.kind_of(statements_root_list[1].text.strip())
@@ -233,8 +237,6 @@ def compile_term(term_root: Element, symbol_table: SymbolTable, writer: VMWriter
         writer.write_push("that", 0)
 
 
-
-
 def compile_function_call_term(term_root: Element, symbol_table: SymbolTable, writer: VMWriter):
     func_name = list(term_root)[:-3]
     exp_list = list(term_root)[-2]
@@ -264,8 +266,8 @@ def compile_length_1_term(term_root: Element, symbol_table: SymbolTable, writer:
         compile_keyword(tag.text.strip(), writer)
     elif tag.tag == "integerConstant":
         writer.write_push("constant", tag.text.strip())
-    elif tag.tag == "stringInteger":
-        compile_string(tag.text.strip(), writer)
+    elif tag.tag == "stringConstant":
+        compile_string(tag.text[1:-1], writer)
     elif tag.tag == "identifier":
         kind = symbol_table.kind_of(tag.text.strip())
         segment = kind_to_segment(kind)
@@ -290,7 +292,7 @@ def compile_string(string: str, writer: VMWriter):
 
     for c in string:
         writer.write_push("constant", ord(c))
-        writer.write_call("String.appendChar", 1)
+        writer.write_call("String.appendChar", 2)
 
 
 def compile_expression_list(exp_list_root: Element, symbol_table: SymbolTable, writer: VMWriter):

@@ -195,7 +195,7 @@ class CompilationEngine:
         """Compiles an expression."""
         with self._write_tag("term"):
             self.compile_term()
-        if self.tokenizer.symbol() in OP:
+        while self.tokenizer.symbol() in OP:
             self._write_token()
             with self._write_tag("term"):
                 self.compile_term()
