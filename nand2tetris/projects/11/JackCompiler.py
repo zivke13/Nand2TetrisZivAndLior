@@ -14,6 +14,9 @@ from SymbolTable import SymbolTable
 from VMWriter import VMWriter
 
 
+label_counter = 0
+
+
 def store_var_dec(var_dec_root: Element, symbol_table: SymbolTable):
     var_kind, var_type = list(var_dec_root)[:2]
     for var_name in list(var_dec_root)[2:-1:2]:
@@ -79,8 +82,23 @@ def compile_return():
     pass
 
 
-def compile_if():
-    pass
+def compile_if(if_root: Element, symbol_table: SymbolTable, writer: VMWriter):
+    global label_counter
+    first_label = f"label.{label_counter}"
+    label_counter += 1
+    second_label = f"label.{label_counter}"
+    label_counter += 1
+
+    compile_expression(list(if_root)[2], symbol_table, writer)
+    writer.write_arithmetic("not")
+
+    writer.write_if(first_label)
+    compile_statements(list(if_root)[5], symbol_table, writer)
+    writer.write_goto(second_label)
+    writer.write_label(first_label)
+    if len(list(if_root)) > 7 and list(if_root)[7].text.strip() == "else":
+        compile_statements(list(if_root)[9], symbol_table, writer)
+    writer.write_label(second_label)
 
 
 def compile_expression():
