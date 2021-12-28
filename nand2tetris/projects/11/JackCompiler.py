@@ -15,7 +15,9 @@ from VMWriter import VMWriter
 
 UNARY_OPS = {
     "-": "neg",
-    "~": "not"
+    "~": "not",
+    "^": "shiftleft",
+    "#": "shiftright"
 }
 BINARY_OPS = {
     "+": "add",

@@ -11,7 +11,7 @@ KEYWORDS = ["class", "method", "function", "constructor", "int", "boolean",
              "else", "while", "return", "true", "false", "null", "this"]
 
 SYMBOLS = ["{", "}", "[", "]", "(", ")", ".", ",", ";", "+", "-", "*", "/",
-            "&", "|", "<", ">", "=", "~"]
+            "&", "|", "<", ">", "=", "~", "^", "#"]
 
 
 KEYWORD = "keyword"

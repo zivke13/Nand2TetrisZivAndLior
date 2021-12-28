@@ -211,7 +211,7 @@ class CompilationEngine:
         part of this term and should not be advanced over.
         """
         next_symbol = self.tokenizer.next_symbol()
-        if self.tokenizer.symbol() in ["-", "~"]:
+        if self.tokenizer.symbol() in ["-", "~", "#", "^"]:
             self._write_token()
             with self._write_tag("term"):
                 self.compile_term()
