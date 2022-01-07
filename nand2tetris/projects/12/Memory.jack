@@ -45,7 +45,7 @@ class Memory {
     function int alloc(int size) {
         var Array segment;
 
-        let segment = freeList
+        let segment = freeList;
 
         while(segment[1] < size + 2)
         {
