@@ -44,6 +44,8 @@ class Memory {
      *  a reference to its base address. */
     function int alloc(int size) {
         var Array segment;
+        var Array ret_val;
+        var int ret;
 
         let segment = freeList;
 
@@ -57,12 +59,9 @@ class Memory {
         }
 
         let segment[1] = segment[1] - size -2;
-        var Array ret_val;
         let ret_val = segment + segment[1] + 2;
         let ret_val[0] = 0;
         let ret_val[1] = size;
-
-        var int ret;
         let ret = ret_val;
         return ret;
     }
@@ -78,8 +77,7 @@ class Memory {
             let segment = segment[0];
         }
 
-        let segment[0] = o
-
+        let segment[0] = o;
         return;
     }    
 }
