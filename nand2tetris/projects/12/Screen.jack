@@ -11,8 +11,7 @@
  */
 class Screen {
     static Array screen;
-    static int screen_size;
-    field int color;
+    static int screen_size, color;
 
     /** Initializes the Screen. */
     function void init() {
@@ -27,8 +26,8 @@ class Screen {
         var int ind;
         let ind = 0;
         while (ind < screen_size) {
-            let screen[i] = 0;
-            ind = ind + 1;
+            let screen[ind] = 0;
+            let ind = ind + 1;
         }
         return;
     }
@@ -49,9 +48,9 @@ class Screen {
     function void drawPixel(int x, int y) {
         var int address, value, bit;
         let address = (32 * y) + (x / 16);
-        let value = Memory.peek[16384 + address];
+        let value = Memory.peek(16384 + address);
 
-        let bit = Math.twoToThe(x & 15);
+        let bit = Math.two_power(x & 15);
         if (color = 0) {
             let value = value & ~bit;
         }
@@ -90,7 +89,7 @@ class Screen {
         let diff = 0;
 
         while ((a < dx + 1) & (b < dy + 1)) {
-            do Screen.drawPixel(x + a, y + b);
+            do Screen.drawPixel(x1 + a, y1 + b);
             if (diff < 0) {
                 let a = a + x_dir;
                 let diff = diff + dy;
@@ -112,7 +111,7 @@ class Screen {
         let y = y1;
         while (y < y2) {
             do Screen.drawLine(x1, y, x2, y);
-            y = y + 1;
+            let y = y + 1;
         }
 
         return;
@@ -124,7 +123,7 @@ class Screen {
         let dy = -r;
 
         while (dy < r + 1) {
-            do Screen.drawLine(x - Math.sqrt(r * r - dy + dy), y + dy, x + Math.sqrt(r * r - cur_y * cur_y), y + dy);
+            do Screen.drawLine(x - Math.sqrt(r * r - dy + dy), y + dy, x + Math.sqrt(r * r - dy * dy), y + dy);
             let dy = dy + 1;
         }
 

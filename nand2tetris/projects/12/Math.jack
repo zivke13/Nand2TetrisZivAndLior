@@ -13,9 +13,9 @@ class Math {
     /** Initializes the library. */
     function void init()
     {
+        var int i;
         let twos = Array.new(16);
         let twos[0] = 1;
-        var int i;
         let i = 1;
 
         while(i <16)
@@ -36,7 +36,7 @@ class Math {
         if( x < 0) {
             let x = -x;
         }
-        return x
+        return x;
     }
 
     /** Returns the product of x and y. 
@@ -45,10 +45,9 @@ class Math {
      *  the Jack expressions x*y and multiply(x,y) return the same value.
      */
     function int multiply(int x, int y) {
-        var int sum, shiftedX;
+        var int j, sum, shiftedX;
         let sum = 0;
         let shiftedX = x;
-        var int j;
         let j = 0;
         while( j < 16 ) {   // 16-bit numbers
             if(~((y & twos[j]) = 0)) {
@@ -66,9 +65,7 @@ class Math {
      *  the Jack expressions x/y and divide(x,y) return the same value.
      */
     function int divide(int x, int y) {
-        var int neg_x, neg_y;
-        var int q;
-        var int division;
+        var int neg_x, neg_y, q, division;
 
         let neg_x = x < 0;
         let neg_y = y < 0;
@@ -79,23 +76,19 @@ class Math {
         {
         return 0;
         }
-        var int q;
         let q = Math.divide(x, y + y);
-        if((x-(2*q*y)) < y)
-        {
+        if((x-(2*q*y)) < y) {
             let division = q + q;
         }
-        else
-        {
-            let division = q + q + 1
+        else {
+            let division = q + q + 1;
         }
 
-        if( neg_y = neg_x)
-        {
+        if( neg_y = neg_x) {
             return division;
         }
         else {
-            return -division
+            return -division;
         }
     }
 

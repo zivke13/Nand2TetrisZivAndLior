@@ -19,7 +19,7 @@ class Output {
     // Character map for displaying characters
     static Array screen;
     static Array charMaps;
-    field int cursor_x, cursor_y;
+    static int cursor_x, cursor_y;
 
     /** Initializes the screen, and locates the cursor at the screen's top-left. */
     function void init() {
@@ -215,8 +215,8 @@ class Output {
             let x = 0;
 
             while (x < 8) {
-                do Screen.setColor(bits & Math.twoToThe(x));
-                do Screen.drawPixel(col_offset + col, row_offset + row);
+                do Screen.setColor(bits & Math.two_power(x));
+                do Screen.drawPixel(x + x0, y + y0);
 
                 let x = x + 1;
             }
@@ -252,7 +252,7 @@ class Output {
 
         while (i < l) {
             do Output.printChar(s.charAt(i));
-            i = i + 1;
+            let i = i + 1;
         }
 
         return;
@@ -276,7 +276,7 @@ class Output {
         let cursor_x = 0;
 
         if (cursor_y = 22) {
-            cursor_y = 0;
+            let cursor_y = 0;
         }
         else {
             let cursor_y = cursor_y + 1;
@@ -307,7 +307,7 @@ class Output {
             let x = cursor_x;
         }
 
-        do Output.print_char(32);
+        do Output.printChar(32);
 
         let cursor_x = x;
         let cursor_y = y;

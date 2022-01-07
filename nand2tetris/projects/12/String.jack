@@ -26,8 +26,8 @@ class String {
 
     /** Disposes this string. */
     method void dispose() {
-        do Memory.dealloc(str);
-        do Memory.dealloc(this);
+        do Memory.deAlloc(str);
+        do Memory.deAlloc(this);
         return;
     }
 
@@ -58,8 +58,8 @@ class String {
         if (length = max_length) {
             do Sys.error(1);
         }
-        str[length] = c;
-        length = length + 1;
+        let str[length] = c;
+        let length = length + 1;
 
         return this;
     }
@@ -69,7 +69,7 @@ class String {
         if (length = 0) {
             do Sys.error(1);
         }
-        length = length - 1;
+        let length = length - 1;
         return;
     }
 
@@ -77,7 +77,7 @@ class String {
      *  until a non-digit character is detected. */
     method int intValue() {
         var int i;
-        let i = string2Int(this);
+        let i = String.string2Int(this);
         return i;
     }
 
@@ -101,7 +101,7 @@ class String {
         let l = s.length();
 
         if (length < l + extra) {
-            Sys.error(1);
+            do Sys.error(1);
         }
 
         let length = l + extra;
@@ -135,10 +135,10 @@ class String {
 
     /** Returns the string representation of a non-negative number. */
     function String int2String(int i) {
-        var int lastDigit, c;
+        var int last_digit, c;
         var String s;
 
-        let last_digit = i  - ((i / 10) * 10)
+        let last_digit = i  - ((i / 10) * 10);
         let c = last_digit + 48;
 
         if (i < 10) {
@@ -148,7 +148,7 @@ class String {
         }
         else {
             let s = String.int2String(i / 10);
-            let s = s.append(c);
+            let s = s.appendChar(c);
             return s;
         }
     }
@@ -162,7 +162,7 @@ class String {
         let val = 0;
         let neg = false;
 
-        let l = s.length()
+        let l = s.length();
         while (i < l) {
             let d = s.charAt(i) - 48;
 

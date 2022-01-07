@@ -13,6 +13,7 @@ class Keyboard {
     function void init() {
         let cursor = 0;
         let keyboard = 24576;
+        return;
     }
 
     /**
@@ -99,6 +100,6 @@ class Keyboard {
         var String s;
 
         let s = Keyboard.readLine(message);
-        return s.intValue()
+        return s.intValue();
     }
 }

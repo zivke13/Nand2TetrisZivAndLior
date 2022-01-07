@@ -69,13 +69,14 @@ class Memory {
     /** De-allocates the given object (cast as an array) by making
      *  it available for future allocations. */
     function void deAlloc(Array o) {
-        var Array segment;
-        let segment = freeList;
-        while(~(segment[0] = 0)){
-            let segment = segment[0];
-        }
-
-        let segment[0] = o;
         return;
+        //var Array segment;
+        //let segment = freeList;
+        //while(~(segment[0] = 0)){
+//            let segment = segment[0];
+//        }
+//
+//        let segment[0] = o;
+//        return;
     }    
 }

@@ -23,7 +23,7 @@ class Array {
         var Array arr;
 
         if (size < 0) {
-            Sys.error(1);
+            do Sys.error(1);
         }
 
         let arr = Memory.alloc(size);
@@ -34,7 +34,7 @@ class Array {
 
     /** Disposes this array. */
     method void dispose() {
-        do Memory.dealloc(this);
+        do Memory.deAlloc(this);
         return;
     }
 
@@ -53,14 +53,14 @@ class Array {
 
         let l = arr.getSize();
         if (l = 0) {
-            Sys.error(1);
+            do Sys.error(1);
         }
 
         let mx = arr[0];
         let i = 1;
         while(i < l) {
             if (mx < arr[i]) {
-                mx = arr[i];
+                let mx = arr[i];
             }
         }
 

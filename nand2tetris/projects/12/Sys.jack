@@ -10,8 +10,8 @@ class Sys {
 
     /** Performs all the initializations required by the OS. */
     function void init() {
-        do Math.init();
         do Memory.init();
+        do Math.init();
         do Screen.init();
         do Output.init();
         do Keyboard.init();
@@ -33,7 +33,7 @@ class Sys {
         var int a, b;
 
         if (duration < 0) {
-            Sys.error(1);
+            do Sys.error(1);
         }
 
         let a = -1;
