@@ -12,12 +12,22 @@
 class Screen {
     static Array screen;
     static int screen_size, color;
+    static Array two_powers;
 
     /** Initializes the Screen. */
     function void init() {
+        var int i;
         let screen = 16384;
         let screen_size = 8192;
         let color = 1;
+
+        let two_powers = Array.new(16);
+        let two_powers[0] = 1;
+        let i = 0;
+        while (i < 16) {
+            let two_powers[i + 1] = two_powers[i] + two_powers[i];
+            let i = i + 1;
+        }
         return;
     }
 
@@ -47,10 +57,10 @@ class Screen {
     /** Draws the (x,y) pixel, using the current color. */
     function void drawPixel(int x, int y) {
         var int address, value, bit;
-        let address = (32 * y) + (x / 16);
-        let value = Memory.peek(16384 + address);
+        let address = screen + ((32 * y) + (x / 16));
+        let value = Memory.peek(address);
 
-        let bit = Math.two_power(x & 15);
+        let bit = two_powers[x - ((x / 16) * 16)];
         if (color = 0) {
             let value = value & ~bit;
         }
@@ -65,6 +75,38 @@ class Screen {
     /** Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. */
     function void drawLine(int x1, int y1, int x2, int y2) {
         var int x_dir, y_dir, a, b, diff, dx, dy;
+
+        if (y1 = y2) {
+            if (x1 < x2) {
+                let a = x1;
+                let b = x2;
+            }
+            else {
+                let a = x2;
+                let b = x1;
+            }
+            while(a < (b + 1)) {
+                do Screen.drawPixel(a, y1);
+                let a = a + 1;
+            }
+            return;
+        }
+
+        if (x1 = x2) {
+            if (y1 < y2) {
+                let a = y1;
+                let b = y2;
+            }
+            else {
+                let a = y2;
+                let b = y1;
+            }
+            while(a < (b + 1)) {
+                do Screen.drawPixel(x1, a);
+                let a = a + 1;
+            }
+            return;
+        }
 
         if (x1 < x2) {
             let x_dir = 1;
@@ -88,7 +130,14 @@ class Screen {
         let b = 0;
         let diff = 0;
 
-        while ((a < dx + 1) & (b < dy + 1)) {
+        if ((x_dir = -1) & (y_dir = -1)) {
+            let x_dir = 1;
+            let y_dir = 1;
+            let x1 = x2;
+            let y1 = y2;
+        }
+
+        while ((a < (dx + 1)) & (b < (dy + 1))) {
             do Screen.drawPixel(x1 + a, y1 + b);
             if (diff < 0) {
                 let a = a + x_dir;
@@ -122,8 +171,8 @@ class Screen {
         var int dy;
         let dy = -r;
 
-        while (dy < r + 1) {
-            do Screen.drawLine(x - Math.sqrt(r * r - dy + dy), y + dy, x + Math.sqrt(r * r - dy * dy), y + dy);
+        while (dy < (r + 1)) {
+            do Screen.drawLine(x - Math.sqrt((r * r) - (dy * dy)), y + dy, x + Math.sqrt((r * r) - (dy * dy)), y + dy);
             let dy = dy + 1;
         }
 
