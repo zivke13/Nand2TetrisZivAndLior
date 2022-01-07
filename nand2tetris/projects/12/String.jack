@@ -11,54 +11,176 @@
  * string-oriented operations.
  */
 class String {
+    static int max_length;
+    field Array str;
+    field int length;
 
     /** constructs a new empty string with a maximum length of maxLength
      *  and initial length of 0. */
     constructor String new(int maxLength) {
+        let max_length = maxLength;
+        let str = Array.new(maxLength);
+        let length = 0;
+        return this;
     }
 
     /** Disposes this string. */
     method void dispose() {
+        do Memory.dealloc(str);
+        do Memory.dealloc(this);
+        return;
     }
 
     /** Returns the current length of this string. */
     method int length() {
+        return length;
     }
 
     /** Returns the character at the j-th location of this string. */
     method char charAt(int j) {
+        if ((j < 0) | (j > length - 1)) {
+            do Sys.error(1);
+        }
+        return str[j];
     }
 
     /** Sets the character at the j-th location of this string to c. */
     method void setCharAt(int j, char c) {
+        if ((j < 0) | (j > length - 1)) {
+            do Sys.error(1);
+        }
+        let str[j] = c;
+        return;
     }
 
     /** Appends c to this string's end and returns this string. */
     method String appendChar(char c) {
+        if (length = max_length) {
+            do Sys.error(1);
+        }
+        str[length] = c;
+        length = length + 1;
+
+        return this;
     }
 
     /** Erases the last character from this string. */
     method void eraseLastChar() {
+        if (length = 0) {
+            do Sys.error(1);
+        }
+        length = length - 1;
+        return;
     }
 
     /** Returns the integer value of this string, 
      *  until a non-digit character is detected. */
     method int intValue() {
+        var int i;
+        let i = string2Int(this);
+        return i;
     }
 
     /** Sets this string to hold a representation of the given value. */
     method void setInt(int val) {
+        var String s;
+        var boolean neg;
+        var int i, l, extra;
+
+        if (val < 0) {
+            let neg = true;
+            let extra = 1;
+            let val = -val;
+        }
+        else {
+            let neg = false;
+            let extra = 0;
+        }
+
+        let s = String.int2String(val);
+        let l = s.length();
+
+        if (length < l + extra) {
+            Sys.error(1);
+        }
+
+        let length = l + extra;
+
+        let i = 0;
+        if (neg) {
+            let str[0] = 45;
+            let i = 1;
+        }
+        while (i < length) {
+            let str[i] = s.charAt(i);
+        }
+
+        return;
     }
 
     /** Returns the new line character. */
     function char newLine() {
+        return 128;
     }
 
     /** Returns the backspace character. */
     function char backSpace() {
+        return 129;
     }
 
     /** Returns the double quote (") character. */
     function char doubleQuote() {
+        return 34;
+    }
+
+    /** Returns the string representation of a non-negative number. */
+    function String int2String(int i) {
+        var int lastDigit, c;
+        var String s;
+
+        let last_digit = i  - ((i / 10) * 10)
+        let c = last_digit + 48;
+
+        if (i < 10) {
+            let s = String.new(6);
+            let s = s.appendChar(c);
+            return s;
+        }
+        else {
+            let s = String.int2String(i / 10);
+            let s = s.append(c);
+            return s;
+        }
+    }
+
+    /** Returns the integer value of a string. */
+    function String string2Int(String s) {
+        var int d, i, l, val;
+        var boolean neg;
+
+        let i = 0;
+        let val = 0;
+        let neg = false;
+
+        let l = s.length()
+        while (i < l) {
+            let d = s.charAt(i) - 48;
+
+            if (d = -3) {
+                let neg = true;
+            }
+            else {
+                let val = val * 10 + d;
+            }
+
+            let i = i + 1;
+        }
+
+        if (neg) {
+            return -d;
+        }
+        else {
+            return d;
+        }
     }
 }
