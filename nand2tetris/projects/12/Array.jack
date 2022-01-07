@@ -16,16 +16,54 @@
  * data types.
  */
 class Array {
+    field int length;
 
     /** Constructs a new Array of the given size. */
     function Array new(int size) {
+        var Array arr;
+
+        if (size < 0) {
+            Sys.error(1);
+        }
+
+        let arr = Memory.alloc(size);
+        do arr.setSize(size);
+
+        return arr;
     }
 
     /** Disposes this array. */
     method void dispose() {
+        do Memory.dealloc(this);
+        return;
+    }
+
+    method int getSize() {
+        return length;
+    }
+
+    method void setSize(int size) {
+        let length = size;
+        return;
     }
 
     /** Returns the maximal element contained in the given Array. */
     function int max(Array arr) {
+        var int i, l, mx;
+
+        let l = arr.getSize();
+        if (l = 0) {
+            Sys.error(1);
+        }
+
+        let mx = arr[0];
+        let i = 1;
+        while(i < l) {
+            if (mx < arr[i]) {
+                mx = arr[i];
+            }
+        }
+
+        return mx;
     }
 }
