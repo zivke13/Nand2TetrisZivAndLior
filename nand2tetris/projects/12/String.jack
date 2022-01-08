@@ -45,7 +45,7 @@ class String {
     /** Returns the character at the j-th location of this string. */
     method char charAt(int j) {
         if ((j < 0) | (j > (length - 1))) {
-            do Sys.error(1);
+            do Sys.error(15);
         }
         return str[j];
     }
@@ -53,7 +53,7 @@ class String {
     /** Sets the character at the j-th location of this string to c. */
     method void setCharAt(int j, char c) {
         if ((j < 0) | (j > (length - 1))) {
-            do Sys.error(1);
+            do Sys.error(16);
         }
         let str[j] = c;
         return;
@@ -62,7 +62,7 @@ class String {
     /** Appends c to this string's end and returns this string. */
     method String appendChar(char c) {
         if (length = max_length) {
-            do Sys.error(1);
+            do Sys.error(17);
         }
         let str[length] = c;
         let length = length + 1;
@@ -73,7 +73,7 @@ class String {
     /** Erases the last character from this string. */
     method void eraseLastChar() {
         if (length = 0) {
-            do Sys.error(1);
+            do Sys.error(18);
         }
         let length = length - 1;
         return;
@@ -107,7 +107,7 @@ class String {
         let l = s.length();
 
         if (max_length < (l + extra)) {
-            do Sys.error(1);
+            do Sys.error(19);
         }
 
         let length = l + extra;

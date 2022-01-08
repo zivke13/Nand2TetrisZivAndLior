@@ -67,6 +67,10 @@ class Math {
     function int divide(int x, int y) {
         var int neg_x, neg_y, q, division;
 
+        if (y = 0) {
+            do Sys.error(3);
+        }
+
         let neg_x = x < 0;
         let neg_y = y < 0;
         let x = Math.abs(x);
@@ -94,9 +98,13 @@ class Math {
 
     /** Returns the integer part of the square root of x. */
     function int sqrt(int x) {
-            var int j, y;
+        var int j, y;
         var int temp;
         var int temp_squared;
+
+        if (x < 0) {
+            do Sys.error(4);
+        }
 
         let y = 0;
         let j = 7;      // = #bits / 2 - 1

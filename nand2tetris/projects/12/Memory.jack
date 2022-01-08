@@ -47,6 +47,10 @@ class Memory {
         var Array ret_val;
         var int ret;
 
+        if (size < 0) {
+            do Sys.error(5);
+        }
+
         let segment = freeList;
 
         while(segment[1] < (size + 2))

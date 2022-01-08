@@ -184,7 +184,7 @@ class Output {
      *  and erases the character displayed there. */
     function void moveCursor(int i, int j) {
         if ((i < 0) | (j < 0) | (i > 22) | (j > 63)) {
-            do Sys.error(1);
+            do Sys.error(20);
         }
 
         let cursor_x = j;
