@@ -56,11 +56,12 @@ class Screen {
 
     /** Draws the (x,y) pixel, using the current color. */
     function void drawPixel(int x, int y) {
-        var int address, value, bit;
-        let address = screen + ((32 * y) + (x / 16));
+        var int address, value, bit, x_sixteenth;
+        let x_sixteenth = x / 16;
+        let address = screen + ((32 * y) + x_sixteenth);
         let value = Memory.peek(address);
 
-        let bit = two_powers[x - ((x / 16) * 16)];
+        let bit = two_powers[x - (x_sixteenth * 16)];
         if (color = 0) {
             let value = value & ~bit;
         }

@@ -81,7 +81,7 @@ class Math {
         return 0;
         }
         let q = Math.divide(x, y + y);
-        if((x-(2*q*y)) < y) {
+        if((x - ((q * y) + (q * y))) < y) {
             let division = q + q;
         }
         else {
