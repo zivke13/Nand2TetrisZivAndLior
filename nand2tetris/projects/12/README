@@ -1,7 +1,7 @@
-bartsimp, lisasimp
+liorsharon, zivi11
 ===============================================================================
-Bart Simpson, ID 011111111, bart@mail.huji.ac.il
-Lisa Simpson, ID 022222222, lisa@mail.huji.ac.il
+Lior Sharon, ID 322263013, lior.sharon@mail.huji.ac.il
+Ziv Kohn, ID 322890864, ziv.kohn@mail.huji.ac.il
 ===============================================================================
 
                            Project 12 - The Operating System
@@ -11,14 +11,14 @@ Lisa Simpson, ID 022222222, lisa@mail.huji.ac.il
 Submitted Files
 ---------------
 README - This file.
-Array.jack - 
-Keyboard.jack - 
-Math.jack - 
-Memory.jack - 
-Output.jack - 
-Screen.jack - 
-String.jack - 
-Sys.jack - 
+Array.jack - Allocating and disposing arrays
+Keyboard.jack - Reading keyboard input from the user
+Math.jack - Mathematical operations such as multiply, divide, sqrt etc
+Memory.jack - memory handling - alloc, deAlloc etc
+Output.jack - Writing bitmap output to the screen
+Screen.jack - Writing line output to the screen
+String.jack - String objects built from chars
+Sys.jack - System functions - init, halt, error, wait
 
 Remarks
 -------

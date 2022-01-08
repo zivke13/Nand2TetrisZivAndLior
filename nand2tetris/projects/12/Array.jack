@@ -36,13 +36,18 @@ class Array {
     /** Returns the maximal element contained in the given Array. */
     function int max(Array arr) {
         var int i, mx, size;
+        var Array ram;
+
+        let ram = 0;
 
         let mx = arr[0];
         let i = 1;
+        let size = ram[arr - 1];
         while(i < size) {
             if (mx < arr[i]) {
                 let mx = arr[i];
             }
+            let i = i + 1;
         }
 
         return mx;

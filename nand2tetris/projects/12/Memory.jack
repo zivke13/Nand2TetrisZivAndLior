@@ -66,7 +66,7 @@ class Memory {
         let ret_val = segment + segment[1] + 2;
         let ret_val[0] = 0;
         let ret_val[1] = size;
-        let ret = ret_val;
+        let ret = ret_val + 2;
         return ret;
     }
 
@@ -79,7 +79,23 @@ class Memory {
             let segment = segment[0];
         }
 
-        let segment[0] = o;
+        let segment[0] = o - 2;
         return;
-    }    
+    }
+
+    function int max(Array arr) {
+        var int i, mx, size;
+
+        let mx = arr[0];
+        let i = 1;
+        let size = ram[arr - 1];
+        while(i < size) {
+            if (mx < arr[i]) {
+                let mx = arr[i];
+            }
+            let i = i + 1;
+        }
+
+        return mx;
+    }
 }
